@@ -11,11 +11,11 @@ Potrebno je na GPIO pin 22 postaviti svjetleću diodu (*eng. LED*) i otpornik (1
         |         GPIO 22 +---------------------+
         |                 |                     |
         |             GND +----+               _|_
-        |                 |    |               \ /   LED
+        |                 |    |               \ / LED
         +-----------------+    |                |
                                |                |
                                |               +++
-                               |               | |   R - 1kOhm
+                               |               | | R - 1kOhm
                                |               | |
                                |               +++
                                |                |

@@ -81,7 +81,9 @@ esp_err_t gpio_setup() {
 
     esp_err_t esp_err = ESP_OK;                                 // For debugging
     esp_err = gpio_reset_pin(LED_PIN);                          // Reset pin to default state
+    if(esp_err != ESP_OK) return esp_err;
     esp_err = gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);    // Set pin output mode
+    if(esp_err != ESP_OK) return esp_err;
     esp_err = gpio_set_level(LED_PIN, LED_OFF);                 // Set pin level to 0
     return esp_err;
 
