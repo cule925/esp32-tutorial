@@ -356,7 +356,7 @@ Nema povratne vrijednosti. Za pozivanje ove funkcije definicija *INCLUDE_vTaskSu
 
 ##### Suspendiranje raspoređivača
 ```
-void vTaskSuspendAll()
+void vTaskSuspendAll(void)
 ```
 
 Nema povratne vrijednosti. Suspendira raspoređivač, ne zadatke (**prekidi su i dalje omogućeni**). Zadatak koji se trenutno pokretao na jezgri će se izvršavati sve dok se ponovno ne pokrene raspoređivač odnosno neće biti zamjene konteksta sve dok se raspoređivač ne pokrene. Brojanje taktova i dalje radi (jer se inkrementacija brojača radi u prekidnoj rutini) tako da će se svi vremenski odgođeni zadatci biti na vrijeme odgođeni i odblokirani ako se raspoređivač pokrene prije njihovih vremenskih odgoda.
@@ -394,7 +394,7 @@ Povratna vrijednost ove funkcije je *pdTRUE* ako se pri pokretanju raspoređiva�
 
 ##### Forsiranje promjene konteksta zadatka
 ```
-taskYIELD()
+taskYIELD(void)
 ```
 
 Ovo je makro. Forsira trenutni zadatak na poziv raspoređivača.
@@ -440,12 +440,12 @@ Kritične sekcije u ovom slučaju moraju biti što je kraće moguće. U ovakvim 
 
 Općenito omogućivanje prekida koji se mogu maskirati radi se makroom:
 ```
-taskENABLE_INTERRUPTS()
+taskENABLE_INTERRUPTS(void)
 ```
 
 Općenito onemogućivanje prekida koji se mogu maskirati prekida radi se makroom:
 ```
-taskDISABLE_INTERRUPTS()
+taskDISABLE_INTERRUPTS(void)
 ```
 
 ### Komunikacijski i sinkronizacijski mehanizmi
@@ -728,7 +728,7 @@ Primjer korištenja zadatka se može naći u direktoriju [*tasks-mutex*](tasks-m
 
 ##### Stvaranje binarnog semafora
 ```
-xSemaphoreCreateBinary()
+xSemaphoreCreateBinary(void)
 ```
 
 Makro vraća *handle* tipa *SemaphoreHandle_t* na novostvoreni binarni semafor, a ako se binarni semafor ne može stvoriti vraća NULL. Inicijalna vrijednost ovog semafora je *0* (zauzet).
@@ -749,7 +749,7 @@ Makro vraća *handle* tipa *SemaphoreHandle_t* na novostvoreni brojeći semafor,
 
 ##### Stvaranje monitora
 ```
-xSemaphoreCreateMutex()
+xSemaphoreCreateMutex(void)
 ```
 
 Makro vraća *handle* tipa *SemaphoreHandle_t* na novostvoreni monitor, a ako se monitor ne može stvoriti vraća NULL.

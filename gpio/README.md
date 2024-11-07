@@ -234,7 +234,7 @@ Parametri funkcije su sljedeći:
 - *isr_handler*
 	- *handler* funkcija koja će se izvršiti kad se dogodi prekid na navedenom pinu
 - *args*
-	- parametar funkcije
+	- pokazivač na parametar funkcije
 
 Funkcija vraća *ESP_OK* ako je registracija funkcije uspjela.
 
