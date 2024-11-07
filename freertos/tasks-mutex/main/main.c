@@ -53,22 +53,16 @@ void vTaskLEDPattern(void* argument) {
     while(counter < LED_REPEAT) {
 
         // Take mutex
-        if(xSemaphoreTake(xMutex, portMAX_DELAY) != pdTRUE) {
-            ESP_LOGE(regularTaskTag, "Mutex take error, id: %d! Iteration %d.", taskId, counter + 1);
-        } else {
-            ESP_LOGI(regularTaskTag, "Mutex successfully taken, id: %d.", taskId);
-        }
+        xSemaphoreTake(xMutex, portMAX_DELAY);
+        ESP_LOGI(regularTaskTag, "Mutex successfully taken, id: %d.", taskId);
 
         // Execute LED pattern
         ESP_LOGI(regularTaskTag, "Executing pattern id: %d.", taskId);
         vLEDPattern(taskId, xTaskSleepPeriod);
 
         // Give mutex
-        if(xSemaphoreGive(xMutex) != pdTRUE) {
-            ESP_LOGE(regularTaskTag, "Mutex give error, id: %d! Iteration %d.", taskId, counter + 1);
-        } else {
-            ESP_LOGI(regularTaskTag, "Mutex successfully given, id: %d.", taskId);
-        }
+        xSemaphoreGive(xMutex);
+        ESP_LOGI(regularTaskTag, "Mutex successfully given, id: %d.", taskId);
 
         counter++;
 
@@ -81,15 +75,11 @@ void vTaskLEDPattern(void* argument) {
 }
 
 // Setup the GPIO
-esp_err_t gpio_setup() {
+void gpio_setup() {
 
-    esp_err_t esp_err = ESP_OK;                                 // For debugging
-    esp_err = gpio_reset_pin(LED_PIN);                          // Reset pin to default state
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);    // Set pin output mode
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_level(LED_PIN, LED_OFF);                 // Set pin level to 0
-    return esp_err;
+    gpio_reset_pin(LED_PIN);                          // Reset pin to default state
+    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);    // Set pin output mode
+    gpio_set_level(LED_PIN, LED_OFF);                 // Set pin level to 0
 
 }
 
@@ -97,10 +87,7 @@ esp_err_t gpio_setup() {
 void app_main(void) {
 
     // Setup the LED pin
-    if(gpio_setup() != ESP_OK) {
-        ESP_LOGE(mainTag, "GPIO setup error! Exiting...");
-        return;
-    }
+    gpio_setup();
     ESP_LOGI(mainTag, "GPIO setup complete!");
 
     // Create mutex

@@ -133,27 +133,18 @@ void vTaskSecondLEDPattern(void* argument) {
 }
 
 // Setup the LED GPIO
-esp_err_t gpio_led_setup() {
-
-    esp_err_t esp_err = ESP_OK;                                     // For debugging
+void gpio_led_setup() {
 
     // LED 1 setup
-    esp_err = gpio_reset_pin(LED_1_PIN);                            // Reset pin to default state
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_direction(LED_1_PIN, GPIO_MODE_OUTPUT);      // Set pin output mode
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_level(LED_1_PIN, LED_OFF);                   // Set pin level to 0
+    gpio_reset_pin(LED_1_PIN);                                  // Reset pin to default state
+    gpio_set_direction(LED_1_PIN, GPIO_MODE_OUTPUT);            // Set pin output mode
+    gpio_set_level(LED_1_PIN, LED_OFF);                         // Set pin level to 0
     
     // LED 2 setup
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_reset_pin(LED_2_PIN);                            // Reset pin to default state
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_direction(LED_2_PIN, GPIO_MODE_OUTPUT);      // Set pin output mode
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_level(LED_2_PIN, LED_OFF);                   // Set pin level to 0
+    gpio_reset_pin(LED_2_PIN);                                  // Reset pin to default state
+    gpio_set_direction(LED_2_PIN, GPIO_MODE_OUTPUT);            // Set pin output mode
+    gpio_set_level(LED_2_PIN, LED_OFF);                         // Set pin level to 0
     
-    return esp_err;
-
 }
 
 // ISR handler function for first button
@@ -189,49 +180,32 @@ void secondButtonHandler(void* argument) {
 }
 
 // Setup the button interrupts GPIO
-esp_err_t gpio_button_interrupts_setup() {
-
-    esp_err_t esp_err = ESP_OK;                                     // For debugging
+void gpio_button_interrupts_setup() {
 
     // Set first button pin
-    esp_err = gpio_reset_pin(BUTTON_1_PIN);                         // Reset pin to default state
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_direction(BUTTON_1_PIN, GPIO_MODE_INPUT);    // Set pin input mode
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_intr_type(BUTTON_1_PIN, GPIO_INTR_NEGEDGE);  // Rising edge interrupt trigger on pin
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_pullup_en(BUTTON_1_PIN);                         // Enable pull-up internal resistor
-    if(esp_err != ESP_OK) return esp_err;
+    gpio_reset_pin(BUTTON_1_PIN);                           // Reset pin to default state
+    gpio_set_direction(BUTTON_1_PIN, GPIO_MODE_INPUT);      // Set pin input mode
+    gpio_set_intr_type(BUTTON_1_PIN, GPIO_INTR_NEGEDGE);    // Rising edge interrupt trigger on pin
+    gpio_pullup_en(BUTTON_1_PIN);                           // Enable pull-up internal resistor
 
     // Set second button pin
-    esp_err = gpio_reset_pin(BUTTON_2_PIN);                         // Reset pin to default state
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_direction(BUTTON_2_PIN, GPIO_MODE_INPUT);    // Set pin input mode
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_intr_type(BUTTON_2_PIN, GPIO_INTR_NEGEDGE);  // Rising edge interrupt trigger on pin
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_pullup_en(BUTTON_2_PIN);                         // Enable pull-up internal resistor
-    if(esp_err != ESP_OK) return esp_err;
-
+    gpio_reset_pin(BUTTON_2_PIN);                           // Reset pin to default state
+    gpio_set_direction(BUTTON_2_PIN, GPIO_MODE_INPUT);      // Set pin input mode
+    gpio_set_intr_type(BUTTON_2_PIN, GPIO_INTR_NEGEDGE);    // Rising edge interrupt trigger on pin
+    gpio_pullup_en(BUTTON_2_PIN);                           // Enable pull-up internal resistor
+    
     // Register the already implemented global GPIO ISR, use default flags
-    esp_err = gpio_install_isr_service(0);
-    if(esp_err != ESP_OK) return esp_err;
+    gpio_install_isr_service(0);
     
     // Register the handlers for the two button pins
-    esp_err = gpio_isr_handler_add(BUTTON_1_PIN, firstButtonHandler, NULL);
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_isr_handler_add(BUTTON_2_PIN, secondButtonHandler, NULL);
-    if(esp_err != ESP_OK) return esp_err;
-    
-    // Enable interrupts on the button two pins
-    esp_err = gpio_intr_enable(BUTTON_1_PIN);
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_intr_enable(BUTTON_2_PIN);
+    gpio_isr_handler_add(BUTTON_1_PIN, firstButtonHandler, NULL);
+    gpio_isr_handler_add(BUTTON_2_PIN, secondButtonHandler, NULL);
 
-    return esp_err;
+    // Enable interrupts on the button two pins
+    gpio_intr_enable(BUTTON_1_PIN);
+    gpio_intr_enable(BUTTON_2_PIN);
 
 }
-
 
 // Entrypoint
 void app_main(void) {
@@ -246,17 +220,10 @@ void app_main(void) {
     ESP_LOGI(mainTag, "Created binary semaphores!");
 
     // Setup the LED pins
-    if(gpio_led_setup() != ESP_OK) {
-        ESP_LOGE(mainTag, "GPIO LED setup error! Exiting...");
-        return;
-    }
+    gpio_led_setup();
     ESP_LOGI(mainTag, "GPIO LED setup complete!");
 
-    // Setup the button interrupt pins
-    if(gpio_button_interrupts_setup() != ESP_OK) {
-        ESP_LOGE(mainTag, "GPIO button interrupt setup error! Exiting...");
-        return;
-    }
+    gpio_button_interrupts_setup();
     ESP_LOGI(mainTag, "GPIO button interrupt setup complete!");
 
     // Create the first LED pattern task

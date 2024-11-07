@@ -2,7 +2,7 @@
 
 Aplikacija je napravljena za ESP32-DevKitM-1 jednojezgrenu pločicu.
 
-Nije potrebno nikakve dodatne komponente spajati na pločicu.
+Nije potrebno spajati nikakve dodatne komponente na pločicu.
 
 Aplikacija radi sljedeće:
 

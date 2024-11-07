@@ -143,6 +143,7 @@ Parametri ove funkcije su:
 			- *event_base* - identifikator općenitog događaja koji se dogodio
 			- *event_id* - identifikator specifičnog događaja koji se dogodio
 			- *event_data* - struktura podataka koja je proslijeđena u trenutku događaja koji se dogodio
+				- **strukture podataka koje se proslijede s obzirom na tip identifikatora općenitog događaja i tip specifičnog događaja mogu se naći [ovdje](https://docs.espressif.com/projects/esp-idf/en/v5.0/esp32/api-guides/event-handling.html#event-ids-and-corresponding-data-structures)**
 
 - *event_handler_arg*
 	- pokazivač na argument koji će biti proslijeđen kada se dogodi općeniti ili specifični događaj koji se registrira
@@ -295,14 +296,14 @@ Zaglavlje koje je potrebno uključiti za [stvaranje i brisanje instance mrežnog
 esp_netif_t *esp_netif_create_default_wifi_sta(void)
 ```
 
-Funkcija vraća pokazivač na objekt koji predstavlja instancu mrežnog sučelja, povezuje WiFi upravljački program sa stvorenim mrežnim sučeljem te povezuje registrira WI-FI *handler* funkcije na sustavsku petlju događaja (koja mora biti stvorena prije poziva ove funkcije).
+Funkcija vraća pokazivač na objekt koji predstavlja instancu mrežnog sučelja, povezuje WiFi upravljački program sa stvorenim mrežnim sučeljem te registrira WI-FI *handler* funkcije na sustavsku petlju događaja (koja mora biti stvorena prije poziva ove funkcije). Mrežno sučelje se dodaje u internu listu mrežnih sučelja.
 
 ##### Stvaranje mrežnog sučelja za korištenje u Wi-Fi AP načinu rada
 ```
 esp_netif_t *esp_netif_create_default_wifi_ap(void)
 ```
 
-Funkcija vraća pokazivač na objekt koji predstavlja instancu mrežnog sučelja, povezuje WiFi upravljački program sa stvorenim mrežnim sučeljem te povezuje registrira WI-FI *handler* funkcije na sustavsku petlju događaja (koja mora biti stvorena prije poziva ove funkcije).
+Funkcija vraća pokazivač na objekt koji predstavlja instancu mrežnog sučelja, povezuje WiFi upravljački program sa stvorenim mrežnim sučeljem te registrira WI-FI *handler* funkcije na sustavsku petlju događaja (koja mora biti stvorena prije poziva ove funkcije). Mrežno sučelje se dodaje u internu listu mrežnih sučelja.
 
 ##### Brisanje stvorenog mrežnog sučelja
 ```
@@ -313,8 +314,8 @@ Parametar ove funkcije je:
 
 - *esp_netif*
 	- pokazivač na stvoreni objekt koji predstavlja instancu mrežnog sučelja
-
-Funkcija ne vraća ništa.
+c
+Funkcija ne vraća ništa. Mrežno sučelje se uklanja iz interne liste mrežnih sučelja.
 
 #### Postavljanje i dohvat postavljene MAC adrese mrežnog sučelja
 
@@ -382,7 +383,7 @@ Funkcija vraća *ESP_OK* ako je uspješno dohvaćeno ime, *ESP_ERR_ESP_NETIF_IF_
 
 #### Postavljanje i dohvat postavljenog zadanog mrežnog sučelja koje se koristi pri komunikaciji
 
-U slučaju da postoji više mrežnih sučelja, potrebno je postaviti zadano mrežno sučelje koje se koristi pri komunikaciji. U slučaju jednog mrežnog sučelja ovo nije potrebno. Zaglavlje koje je potrebno uključiti za postavljanje i pregled zadanog mrežnog sučelja ESP32 mikroupravljača je ```esp_netif.h```.
+U slučaju da postoji više mrežnih sučelja, potrebno je postaviti zadano mrežno sučelje u listi internih mrežnih sučelja koje se koristi pri komunikaciji. U slučaju jednog mrežnog sučelja ovo nije potrebno. Zaglavlje koje je potrebno uključiti za postavljanje i pregled zadanog mrežnog sučelja ESP32 mikroupravljača je ```esp_netif.h```.
 
 ##### Postavljanje zadanog mrežnog sučelja koje se koristi pri komunikaciji
 ```
@@ -394,14 +395,14 @@ Parametar ove funkcije je:
 - *esp_netif*
 	- pokazivač na stvoreni objekt koji predstavlja instancu mrežnog sučelja
 
-Funkcija vraća *ESP_OK* ako je uspješno postavljeno zadano mrežno sučelje koje se koristi pri komunikaciji.
+Funkcija vraća *ESP_OK* ako je uspješno postavljeno zadano mrežno sučelje u listi internih mrežnih sučelja koje se koristi pri komunikaciji.
 
 ##### Dohvaćanje zadanog mrežnog sučelja koje se koristi pri komunikaciji
 ```
 esp_err_t *esp_netif_set_default_netif(void)
 ```
 
-Funkcija vraća pokazivač na objekt mrežnog sučelja koji predstavlja zadano mrežno sučelje koje se koristi pri komunikaciji.
+Funkcija vraća pokazivač na objekt mrežnog sučelja koji predstavlja zadano mrežno sučelje u listi internih mrežnih sučelja koje se koristi pri komunikaciji.
 
 #### Postavljanje i dohvaćanje statičke IP adrese mrežnog sučelja
 
@@ -620,7 +621,7 @@ Zaglavlje koje je potrebno uključiti za rad s [Wi-Fiom](https://docs.espressif.
 
 Funkcija za rad s Wi-Fiom ima mnogo. U nastavku su neke od bitnijih funkcija potrebne za postavljanje mrežnog sučelja.
 
-#### Inicijalizacija i alokacija resursa za Wi-Fi upravljački program
+#### Inicijalizacija Wi-Fi stoga i alokacija resursa za Wi-Fi upravljački program
 ```
 esp_err_t esp_wifi_init(const wifi_init_config_t *config)
 ```
@@ -633,7 +634,7 @@ Parametar ove funkcije je:
 
 Funkcija vraća *ESP_OK* ako je inicijalizacija i alokacija uspješno izvršena.
 
-#### Deinicijalizacija i dealokacija resursa za Wi-Fi upravljački program
+#### Deinicijalizacija Wi-Fi stoga i dealokacija resursa za Wi-Fi upravljački program
 ```
 esp_err_t esp_wifi_deinit(void)
 ```
@@ -736,8 +737,8 @@ Bitni članovi strukture *wifi_ap_config_t* su:
 	- polje tipa *uint8_t* koje sadrži ime mreže kojom klijenti (STATION) mogu pristupiti mreži koju će ESP32 (AP) odašiljati kao pristupnu točku
 - *password*
 	- polje tipa *uint8_t* koje sadrži zaporku mreže kojom klijenti (STATION) mogu pristupiti mreži koju će ESP32 (AP) odašiljati kao pristupnu točku
-- *threshold.authmode*
-	- enumerator tipa *wifi_auth_mode_t* koji definira najslabiji način autentifikacije drugih klijenata (STATION) na koju je ESP32 voljan pristati radi autentifikacije na mrežu
+- *authmode*
+	- enumerator tipa *wifi_auth_mode_t* koji definira obavezni način autentifikacije drugih klijenata (STATION) na ESP32 (AP)
 	- najčešće vrijednosti:
 		- *WIFI_AUTH_OPEN* - ESP32 se pristaje priključivati otvorenim mrežama
 		- *WIFI_AUTH_WEP* - ESP32 se pristaje priključivati na mreže koje imaju minimalno WEP autentifikaciju
@@ -753,6 +754,8 @@ Bitni članovi strukture *wifi_ap_config_t* su:
 		- *WPA3_SAE_PWE_HUNT_AND_PECK* - starija, složenija i sporija metoda
 		- *WPA3_SAE_PWE_HASH_TO_ELEMENT* - novija, jednostavnija i brža metoda
 		- *WPA3_SAE_PWE_BOTH* - obje metode
+- *max_connection*
+	- varijabla tipa *uint8_t* koja definira maksimalni broj klijenata koji mogu biti spojeni na ESP32
 
 #### Dohvaćanje konfiguracije Wi-Fia
 ```
@@ -798,3 +801,19 @@ esp_err_t esp_wifi_disconnect(void)
 ```
 
 Funkcija vraća *ESP_OK* ako je uređaj odspojen s Wi-Fi mreže. Ova funkcija radi samo u *WIFI_MODE_STA* načinu rada i u *WIFI_MODE_APSTA*.
+
+### Općenito postavljanje STATION načina rada
+
+Proces postavljanja ESP32 u STATION način rada je sljedeći:
+
+- inicijalizacija NVS flash particije
+
+- inicijalizacija mrežnog sučelja i stvaranje uobičajene konfiguracije za STATION način rada
+
+- registracija Wi-Fi i IP događaja (ako treba)
+
+- inicijalizacija Wi-Fi upravljačkog programa, stvaranje konfiguracije mreže (ime mreže, zaporka, ...), postavljanje načina rada Wi-Fija (STATION)
+
+- započinjanje rada Wi-Fia
+
+- spajanje na Wi-Fi mrežu

@@ -41,29 +41,17 @@ void vTaskFunctionLED(void* argument) {
 
         // Set pin level to 1
         ESP_LOGI(ledTaskTag, "LED ON!");
-        if(gpio_set_level(LED_PIN, LED_ON) != ESP_OK) {
-            ESP_LOGE(ledTaskTag, "GPIO set level error! Iteration %d.", counter + 1);
-            break;
-        }
+        gpio_set_level(LED_PIN, LED_ON);
 
         // Wait for LED ON period
-        if(xTaskDelayUntil(&xTaskWakeTime, xTaskSleepLEDOn) != pdTRUE) {
-            ESP_LOGE(ledTaskTag, "Time delay error! Iteration %d.", counter + 1);
-            break;
-        }
+        xTaskDelayUntil(&xTaskWakeTime, xTaskSleepLEDOn);
 
         // Set pin level to 1
         ESP_LOGI(ledTaskTag, "LED OFF!");
-        if(gpio_set_level(LED_PIN, LED_OFF) != ESP_OK) {
-            ESP_LOGE(ledTaskTag, "GPIO set level error! Iteration %d.", counter + 1);
-            break;
-        }
+        gpio_set_level(LED_PIN, LED_OFF);
 
         // Wait for LED OFF period
-        if(xTaskDelayUntil(&xTaskWakeTime, xTaskSleepLEDOff) != pdTRUE) {
-            ESP_LOGE(ledTaskTag, "Time delay error! Iteration %d.", counter + 1);
-            break;
-        }
+        xTaskDelayUntil(&xTaskWakeTime, xTaskSleepLEDOff);
 
         // Increment counter
         counter++;
@@ -77,15 +65,11 @@ void vTaskFunctionLED(void* argument) {
 }
 
 // Setup the GPIO
-esp_err_t gpio_setup() {
+void gpio_setup() {
 
-    esp_err_t esp_err = ESP_OK;                                 // For debugging
-    esp_err = gpio_reset_pin(LED_PIN);                          // Reset pin to default state
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);    // Set pin output mode
-    if(esp_err != ESP_OK) return esp_err;
-    esp_err = gpio_set_level(LED_PIN, LED_OFF);                 // Set pin level to 0
-    return esp_err;
+    gpio_reset_pin(LED_PIN);                          // Reset pin to default state
+    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);    // Set pin output mode
+    gpio_set_level(LED_PIN, LED_OFF);                 // Set pin level to 0
 
 }
 
@@ -93,10 +77,7 @@ esp_err_t gpio_setup() {
 void app_main(void) {
 
     // Setup the LED pin
-    if(gpio_setup() != ESP_OK) {
-        ESP_LOGE(mainTag, "GPIO setup error! Exiting...");
-        return;
-    }
+    gpio_setup();
     ESP_LOGI(mainTag, "GPIO setup complete!");
 
     // Create the task

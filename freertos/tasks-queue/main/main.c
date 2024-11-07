@@ -90,10 +90,7 @@ void vTaskSender(void* argument) {
         vTaskDelay(xTaskSleepSender);
 
         // Blocking write
-        if(xQueueSendToBack(xQueue, (void *) &queueElement, portMAX_DELAY) != pdPASS) {
-            ESP_LOGE(senderTaskTag, "Queue send element error! Iteration %d.", i + 1);
-            break;
-        }
+        xQueueSendToBack(xQueue, (void *) &queueElement, portMAX_DELAY);
         ESP_LOGI(senderTaskTag, "Sent message!");
         queueElement.msgNumber++;
 
@@ -122,10 +119,7 @@ void vTaskReceiver(void* argument) {
         vTaskDelay(xTaskSleepReceiver);
 
         // Non-blocking read
-        if(xQueueReceive(xQueue, (void *) &queueElement, (TickType_t) 0) != pdPASS) {
-            ESP_LOGE(receiverTaskTag, "Queue receive element error! Iteration %d.", i + 1);
-            break;
-        }
+        xQueueReceive(xQueue, (void *) &queueElement, (TickType_t) 0);
         ESP_LOGI(receiverTaskTag, "Message number: %d received: '%s'.", queueElement.msgNumber, queueElement.msg);
 
     }
