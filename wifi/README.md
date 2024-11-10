@@ -71,7 +71,7 @@ Podatci se u NVS particiju spremaju u obliku ključa i vrijednosti. Maksimalna v
 
 Zaglavlje koje je potrebno uključiti za rad s [NVS-om](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/storage/nvs_flash.html#api-reference) je ```nvs_flash.h```.
 
-#### Naredba za inicijalizaciju uobičajene NVS particije
+#### Inicijalizacija uobičajene NVS particije
 ```
 esp_err_t nvs_flash_init(void)
 ```

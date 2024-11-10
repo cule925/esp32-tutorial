@@ -2,7 +2,7 @@
 
 Aplikacija je napravljena za ESP32-DevKitM-1 jednojezgrenu pločicu.
 
-Potrebno je sljedeće:
+Potrebno je napraviti sljedeće:
     - na GPIO pin 22 postaviti svjetleću diodu (*eng. LED*) i otpornik (1 kOhm) u seriju ih na drugi kraju povezati s GND
     - na GPIO pin 21 postaviti svjetleću diodu (*eng. LED*) i otpornik (1 kOhm) u seriju ih na drugi kraju povezati s GND
     - na GPIO pin 19 postaviti tipkalo (*eng. BUTTON*) i povezati ga s GND

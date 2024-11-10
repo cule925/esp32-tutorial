@@ -5,7 +5,12 @@
 #include "freertos/semphr.h"                                                    // FreeRTOS semaphore and muitex operations
 #include "esp_log.h"                                                            // Logging operations
 
-// Definitions
+// Tag names
+#define MAIN_TAG                        "main_task"
+#define FIRST_LED_PATTERN_TASK_TAG      "first_led_pattern_task"
+#define SECOND_LED_PATTERN_TASK_TAG     "second_led_pattern_task"
+
+// LED information
 #define LED_PIN                 GPIO_NUM_22
 #define LED_ON                  1
 #define LED_OFF                 0
@@ -13,11 +18,6 @@
 
 // Semaphore info
 SemaphoreHandle_t xFirstSemaphore, xSecondSemaphore;
-
-// Debug
-char *mainTag = "main_task";
-char *firstLEDPatternTaskTag = "first_led_pattern_task";
-char *secondLEDPatternTaskTag = "second_led_pattern_task";
 
 // First LED pattern task info
 TaskHandle_t xTaskHandleFirstLEDPattern = NULL;                                                         // Handle of the task
@@ -38,7 +38,7 @@ void vFirstLEDPattern() {
     TickType_t xTaskSleepPeriod;
 
     // Do the pattern
-    for(int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
 
         xTaskSleepPeriod = (i + 1) * 70 / portTICK_PERIOD_MS;
 
@@ -59,7 +59,7 @@ void vSecondLEDPattern() {
     TickType_t xTaskSleepPeriod;
 
     // Do the pattern
-    for(int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
 
         xTaskSleepPeriod = (10 - i) * 70 / portTICK_PERIOD_MS;
 
@@ -79,26 +79,26 @@ void vTaskFirstLEDPattern(void* argument) {
     int counter = 0;
 
     // Loop it
-    while(counter < LED_REPEAT) {
+    while (counter < LED_REPEAT) {
 
         // Take the first semaphore
         xSemaphoreTake(xFirstSemaphore, portMAX_DELAY);
-        ESP_LOGI(firstLEDPatternTaskTag, "First semaphore successfully taken.");
+        ESP_LOGI(FIRST_LED_PATTERN_TASK_TAG, "First semaphore successfully taken");
         
         // Execute first LED pattern
-        ESP_LOGI(firstLEDPatternTaskTag, "Executing first pattern.");
+        ESP_LOGI(FIRST_LED_PATTERN_TASK_TAG, "Executing first pattern");
         vFirstLEDPattern();
 
         // Give the second semaphore
         xSemaphoreGive(xSecondSemaphore);
-        ESP_LOGI(firstLEDPatternTaskTag, "Second semaphore successfully given.");
+        ESP_LOGI(FIRST_LED_PATTERN_TASK_TAG, "Second semaphore successfully given");
 
         counter++;
 
     }
 
     // Self delete
-    ESP_LOGI(firstLEDPatternTaskTag, "Self deleting, goodbye!");
+    ESP_LOGI(FIRST_LED_PATTERN_TASK_TAG, "Self deleting, goodbye");
     vTaskDelete(NULL);
 
 }
@@ -109,26 +109,26 @@ void vTaskSecondLEDPattern(void* argument) {
     int counter = 0;
 
     // Loop it
-    while(counter < LED_REPEAT) {
+    while (counter < LED_REPEAT) {
 
         // Take the first semaphore
         xSemaphoreTake(xSecondSemaphore, portMAX_DELAY);
-        ESP_LOGI(secondLEDPatternTaskTag, "Second semaphore successfully taken.");
+        ESP_LOGI(SECOND_LED_PATTERN_TASK_TAG, "Second semaphore successfully taken");
 
         // Execute second LED pattern
-        ESP_LOGI(secondLEDPatternTaskTag, "Executing second pattern.");
+        ESP_LOGI(SECOND_LED_PATTERN_TASK_TAG, "Executing second pattern");
         vSecondLEDPattern();
 
         // Give the second semaphore
         xSemaphoreGive(xFirstSemaphore);
-        ESP_LOGI(secondLEDPatternTaskTag, "First semaphore successfully given.");
+        ESP_LOGI(SECOND_LED_PATTERN_TASK_TAG, "First semaphore successfully given");
 
         counter++;
 
     }
 
     // Self delete
-    ESP_LOGI(secondLEDPatternTaskTag, "Self deleting, goodbye!");
+    ESP_LOGI(SECOND_LED_PATTERN_TASK_TAG, "Self deleting, goodbye");
     vTaskDelete(NULL);
 
 }
@@ -147,36 +147,36 @@ void app_main(void) {
 
     // Setup the LED pin
     gpio_setup();
-    ESP_LOGI(mainTag, "GPIO setup complete!");
+    ESP_LOGI(MAIN_TAG, "GPIO setup complete");
 
     // Create binary semaphores
     xFirstSemaphore = xSemaphoreCreateBinary();
     xSecondSemaphore = xSemaphoreCreateBinary();
-    if(xFirstSemaphore == NULL || xSecondSemaphore == NULL) {
-        ESP_LOGE(mainTag, "Error creating binary semaphores! Exiting...");
+    if (xFirstSemaphore == NULL || xSecondSemaphore == NULL) {
+        ESP_LOGE(MAIN_TAG, "Error creating binary semaphores, exiting");
         return;
     }
-    ESP_LOGI(mainTag, "Created binary semaphores!");
+    ESP_LOGI(MAIN_TAG, "Created binary semaphores");
 
     // Create the first LED pattern task
-    if(xTaskCreate(vTaskFirstLEDPattern, pcTaskNameFirstLEDPattern, usTaskStackDepthFirstLEDPattern, NULL, uxTaskPriorityFirstLEDPattern, &xTaskHandleFirstLEDPattern) != pdPASS) {
-        ESP_LOGE(mainTag, "First LED pattern task creation error! Exiting...");
+    if (xTaskCreate(vTaskFirstLEDPattern, pcTaskNameFirstLEDPattern, usTaskStackDepthFirstLEDPattern, NULL, uxTaskPriorityFirstLEDPattern, &xTaskHandleFirstLEDPattern) != pdPASS) {
+        ESP_LOGE(MAIN_TAG, "First LED pattern task creation error, exiting");
         return;
     }
-    ESP_LOGI(mainTag, "First LED pattern task creation complete!");
+    ESP_LOGI(MAIN_TAG, "First LED pattern task creation complete");
 
     // Create the second LED pattern task
-    if(xTaskCreate(vTaskSecondLEDPattern, pcTaskNameSecondLEDPattern, usTaskStackDepthSecondLEDPattern, NULL, uxTaskPrioritySecondLEDPattern, &xTaskHandleSecondLEDPattern) != pdPASS) {
-        ESP_LOGE(mainTag, "Second LED pattern task creation error! Exiting...");
+    if (xTaskCreate(vTaskSecondLEDPattern, pcTaskNameSecondLEDPattern, usTaskStackDepthSecondLEDPattern, NULL, uxTaskPrioritySecondLEDPattern, &xTaskHandleSecondLEDPattern) != pdPASS) {
+        ESP_LOGE(MAIN_TAG, "Second LED pattern task creation error, exiting");
         return;
     }
-    ESP_LOGI(mainTag, "Second LED pattern task creation complete!");
+    ESP_LOGI(MAIN_TAG, "Second LED pattern task creation complete");
 
     // Release the first semaphore, start the sequence
-    ESP_LOGI(mainTag, "Giving green light to the first task.");
+    ESP_LOGI(MAIN_TAG, "Giving green light to the first task");
     xSemaphoreGive(xFirstSemaphore);
-    ESP_LOGI(secondLEDPatternTaskTag, "First semaphore successfully given.");
+    ESP_LOGI(MAIN_TAG, "First semaphore successfully given");
 
-    ESP_LOGI(mainTag, "Exiting...");
+    ESP_LOGI(MAIN_TAG, "Exiting %s", __func__);
 
 }

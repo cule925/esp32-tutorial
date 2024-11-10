@@ -5,7 +5,11 @@
 #include "freertos/semphr.h"                                                    // FreeRTOS semaphore and mutex operations
 #include "esp_log.h"                                                            // Logging operations
 
-// Definitions
+// Tag names
+#define MAIN_TAG                        "main_task"
+#define REGULAR_TASK_TAG                "regular_task"
+
+// LED information
 #define LED_PIN                 GPIO_NUM_22
 #define LED_ON                  1
 #define LED_OFF                 0
@@ -14,10 +18,6 @@
 
 // Mutex info
 SemaphoreHandle_t xMutex;
-
-// Debug
-char *mainTag = "main_task";
-char *regularTaskTag = "regular_task";
 
 // LED pattern task info
 UBaseType_t uxTaskPriorityLEDPattern = tskIDLE_PRIORITY + 1;                                        // Task priority (same as task main)
@@ -28,7 +28,7 @@ int taskIdArray[LED_TASK_NUMBERS] = {0};
 void vLEDPattern(int taskId, TickType_t xTaskSleepPeriod) {
 
     // Do the pattern
-    for(int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
 
         gpio_set_level(LED_PIN, LED_ON);
         vTaskDelay(xTaskSleepPeriod);
@@ -50,26 +50,26 @@ void vTaskLEDPattern(void* argument) {
     TickType_t xTaskSleepPeriod = ((taskId + 1) * 70) / portTICK_PERIOD_MS;
 
     // Loop it
-    while(counter < LED_REPEAT) {
+    while (counter < LED_REPEAT) {
 
         // Take mutex
         xSemaphoreTake(xMutex, portMAX_DELAY);
-        ESP_LOGI(regularTaskTag, "Mutex successfully taken, id: %d.", taskId);
+        ESP_LOGI(REGULAR_TASK_TAG, "Mutex successfully taken, id: %d", taskId);
 
         // Execute LED pattern
-        ESP_LOGI(regularTaskTag, "Executing pattern id: %d.", taskId);
+        ESP_LOGI(REGULAR_TASK_TAG, "Executing pattern id: %d", taskId);
         vLEDPattern(taskId, xTaskSleepPeriod);
 
         // Give mutex
         xSemaphoreGive(xMutex);
-        ESP_LOGI(regularTaskTag, "Mutex successfully given, id: %d.", taskId);
+        ESP_LOGI(REGULAR_TASK_TAG, "Mutex successfully given, id: %d", taskId);
 
         counter++;
 
     }
 
     // Self delete
-    ESP_LOGI(regularTaskTag, "Self deleting id: %d, goodbye!", taskId);
+    ESP_LOGI(REGULAR_TASK_TAG, "Self deleting id: %d, goodbye", taskId);
     vTaskDelete(NULL);
 
 }
@@ -88,26 +88,26 @@ void app_main(void) {
 
     // Setup the LED pin
     gpio_setup();
-    ESP_LOGI(mainTag, "GPIO setup complete!");
+    ESP_LOGI(MAIN_TAG, "GPIO setup complete");
 
     // Create mutex
     xMutex = xSemaphoreCreateMutex();
     if(xMutex == NULL) {
-        ESP_LOGE(mainTag, "Error creating mutex! Exiting...");
+        ESP_LOGE(MAIN_TAG, "Error creating mutex, exiting");
         return;
     }
-    ESP_LOGI(mainTag, "Created mutex!");
+    ESP_LOGI(MAIN_TAG, "Created mutex");
 
     // Create the sender task
-    for(int i = 0; i < LED_TASK_NUMBERS; i++) {
+    for (int i = 0; i < LED_TASK_NUMBERS; i++) {
         taskIdArray[i] = i;
         if(xTaskCreate(vTaskLEDPattern, NULL, usTaskStackDepthLEDPattern, &taskIdArray[i], uxTaskPriorityLEDPattern, NULL) != pdPASS) {
-            ESP_LOGE(mainTag, "LED pattern task %d creation error! Exiting...", i);
+            ESP_LOGE(MAIN_TAG, "LED pattern task %d creation error, exiting", i);
             return;
         }
     }
-    ESP_LOGI(mainTag, "LED pattern tasks creation complete!");
+    ESP_LOGI(MAIN_TAG, "LED pattern tasks creation complete");
 
-    ESP_LOGI(mainTag, "Exiting...");
+    ESP_LOGI(MAIN_TAG, "Exiting %s", __func__);
 
 }

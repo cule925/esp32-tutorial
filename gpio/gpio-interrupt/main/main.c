@@ -5,38 +5,35 @@
 #include "freertos/semphr.h"                                                    // FreeRTOS semaphore and muitex operations
 #include "esp_log.h"                                                            // Logging operations
 
-// Definitions
+// Tag names
+#define MAIN_TAG                        "main_task"
+#define FIRST_LED_PATTERN_TASK_TAG      "first_led_pattern_task"
+#define SECOND_LED_PATTERN_TASK_TAG     "second_led_pattern_task"
+
+// LED information
 #define LED_ON                  1
 #define LED_OFF                 0
-
 #define LED_1_PIN               GPIO_NUM_22
-
 #define LED_2_PIN               GPIO_NUM_21
 
+// Button information
 #define BUTTON_1_PIN            GPIO_NUM_19
 #define BUTTON_2_PIN            GPIO_NUM_18
 
 // Semaphore info
 SemaphoreHandle_t xFirstSemaphore, xSecondSemaphore;
 
-// Debug
-char *mainTag = "main_task";
-char *firstISRHandleTag = "first_isr_handle";
-char *secondISRHandleTag = "second_isr_handle";
-char *firstLEDPatternTaskTag = "first_led_pattern_task";
-char *secondLEDPatternTaskTag = "second_led_pattern_task";
-
 // Debouncing protection
 int firstReady = 1;
 int secondReady = 1;
 
-// First LED pattern task info
+// First LED pattern task information
 TaskHandle_t xTaskHandleFirstLEDPattern = NULL;                                                         // Handle of the task
 char* pcTaskNameFirstLEDPattern = "MY_FIRST_LED_PATTERN_TASK";                                          // Name of the task
 UBaseType_t uxTaskPriorityFirstLEDPattern = tskIDLE_PRIORITY + 1;                                       // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthFirstLEDPattern = configMINIMAL_STACK_SIZE * 8;            // Task stack size
 
-// Second LED pattern task info
+// Second LED pattern task information
 TaskHandle_t xTaskHandleSecondLEDPattern = NULL;                                                        // Handle of the task
 char* pcTaskNameSecondLEDPattern = "MY_SECOND_LED_PATTERN_TASK";                                        // Name of the task
 UBaseType_t uxTaskPrioritySecondLEDPattern = tskIDLE_PRIORITY + 1;                                      // Task priority (same as task main)
@@ -49,7 +46,7 @@ void vFirstLEDPattern() {
     TickType_t xTaskSleepPeriod;
 
     // Do the pattern
-    for(int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
 
         xTaskSleepPeriod = (i + 1) * 50 / portTICK_PERIOD_MS;
 
@@ -70,7 +67,7 @@ void vSecondLEDPattern() {
     TickType_t xTaskSleepPeriod;
 
     // Do the pattern
-    for(int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
 
         xTaskSleepPeriod = (10 - i) * 50 / portTICK_PERIOD_MS;
 
@@ -88,17 +85,17 @@ void vSecondLEDPattern() {
 void vTaskFirstLEDPattern(void* argument) {
 
     // Loop it forever
-    while(1) {
+    while (1) {
 
         // Take the first semaphore
-        if(xSemaphoreTake(xFirstSemaphore, portMAX_DELAY) != pdTRUE) {
-            ESP_LOGE(firstLEDPatternTaskTag, "First semaphore take error!");
+        if (xSemaphoreTake(xFirstSemaphore, portMAX_DELAY) != pdTRUE) {
+            ESP_LOGE(FIRST_LED_PATTERN_TASK_TAG, "Error in taking the first semaphore");
         } else {
-            ESP_LOGI(firstLEDPatternTaskTag, "First semaphore successfully taken.");
+            ESP_LOGI(FIRST_LED_PATTERN_TASK_TAG, "First semaphore successfully taken");
         }
 
         // Execute first LED pattern
-        ESP_LOGI(firstLEDPatternTaskTag, "Executing first pattern.");
+        ESP_LOGI(FIRST_LED_PATTERN_TASK_TAG, "Executing first pattern");
         vFirstLEDPattern();
 
         // Protection against debouncing
@@ -112,17 +109,17 @@ void vTaskFirstLEDPattern(void* argument) {
 void vTaskSecondLEDPattern(void* argument) {
 
     // Loop it forever
-    while(1) {
+    while (1) {
 
         // Take the first semaphore
-        if(xSemaphoreTake(xSecondSemaphore, portMAX_DELAY) != pdTRUE) {
-            ESP_LOGE(secondLEDPatternTaskTag, "Second semaphore take error!");
+        if (xSemaphoreTake(xSecondSemaphore, portMAX_DELAY) != pdTRUE) {
+            ESP_LOGE(SECOND_LED_PATTERN_TASK_TAG, "Error in taking the second semaphore");
         } else {
-            ESP_LOGI(secondLEDPatternTaskTag, "Second semaphore successfully taken.");
+            ESP_LOGI(SECOND_LED_PATTERN_TASK_TAG, "Second semaphore successfully taken");
         }
 
         // Execute second LED pattern
-        ESP_LOGI(secondLEDPatternTaskTag, "Executing second pattern.");
+        ESP_LOGI(SECOND_LED_PATTERN_TASK_TAG, "Executing second pattern");
         vSecondLEDPattern();
 
         // Protection against debouncing
@@ -132,7 +129,7 @@ void vTaskSecondLEDPattern(void* argument) {
 
 }
 
-// Setup the LED GPIO
+// Setup LED GPIO
 void gpio_led_setup() {
 
     // LED 1 setup
@@ -153,7 +150,7 @@ void firstButtonHandler(void* argument) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     // Debouncing protection
-    if(firstReady) {
+    if (firstReady) {
         firstReady = 0;
 
         // Give first semaphore from ISR (handler)
@@ -169,7 +166,7 @@ void secondButtonHandler(void* argument) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     // Debouncing protection
-    if(secondReady) {
+    if (secondReady) {
         secondReady = 0;
 
         // Give second semaphore from ISR (handler)
@@ -179,7 +176,7 @@ void secondButtonHandler(void* argument) {
 
 }
 
-// Setup the button interrupts GPIO
+// Setup button interrupts GPIO
 void gpio_button_interrupts_setup() {
 
     // Set first button pin
@@ -213,33 +210,33 @@ void app_main(void) {
     // Create binary semaphores
     xFirstSemaphore = xSemaphoreCreateBinary();
     xSecondSemaphore = xSemaphoreCreateBinary();
-    if(xFirstSemaphore == NULL || xSecondSemaphore == NULL) {
-        ESP_LOGE(mainTag, "Error creating binary semaphores! Exiting...");
+    if (xFirstSemaphore == NULL || xSecondSemaphore == NULL) {
+        ESP_LOGE(MAIN_TAG, "Error creating binary semaphores, exiting");
         return;
     }
-    ESP_LOGI(mainTag, "Created binary semaphores!");
+    ESP_LOGI(MAIN_TAG, "Binary semaphores created");
 
     // Setup the LED pins
     gpio_led_setup();
-    ESP_LOGI(mainTag, "GPIO LED setup complete!");
+    ESP_LOGI(MAIN_TAG, "GPIO LED setup completed");
 
     gpio_button_interrupts_setup();
-    ESP_LOGI(mainTag, "GPIO button interrupt setup complete!");
+    ESP_LOGI(MAIN_TAG, "GPIO button interrupt setup completed");
 
     // Create the first LED pattern task
-    if(xTaskCreate(vTaskFirstLEDPattern, pcTaskNameFirstLEDPattern, usTaskStackDepthFirstLEDPattern, NULL, uxTaskPriorityFirstLEDPattern, &xTaskHandleFirstLEDPattern) != pdPASS) {
-        ESP_LOGE(mainTag, "First LED pattern task creation error! Exiting...");
+    if (xTaskCreate(vTaskFirstLEDPattern, pcTaskNameFirstLEDPattern, usTaskStackDepthFirstLEDPattern, NULL, uxTaskPriorityFirstLEDPattern, &xTaskHandleFirstLEDPattern) != pdPASS) {
+        ESP_LOGE(MAIN_TAG, "First LED pattern task creation error, exiting");
         return;
     }
-    ESP_LOGI(mainTag, "First LED pattern task creation complete!");
+    ESP_LOGI(MAIN_TAG, "First LED pattern task creation completed");
 
     // Create the second LED pattern task
-    if(xTaskCreate(vTaskSecondLEDPattern, pcTaskNameSecondLEDPattern, usTaskStackDepthSecondLEDPattern, NULL, uxTaskPrioritySecondLEDPattern, &xTaskHandleSecondLEDPattern) != pdPASS) {
-        ESP_LOGE(mainTag, "Second LED pattern task creation error! Exiting...");
+    if (xTaskCreate(vTaskSecondLEDPattern, pcTaskNameSecondLEDPattern, usTaskStackDepthSecondLEDPattern, NULL, uxTaskPrioritySecondLEDPattern, &xTaskHandleSecondLEDPattern) != pdPASS) {
+        ESP_LOGE(MAIN_TAG, "Second LED pattern task creation error, exiting");
         return;
     }
-    ESP_LOGI(mainTag, "Second LED pattern task creation complete!");
+    ESP_LOGI(MAIN_TAG, "Second LED pattern task creation completed");
 
-    ESP_LOGI(mainTag, "Exiting...");
+    ESP_LOGI(MAIN_TAG, "Exiting %s", __func__);
 
 }

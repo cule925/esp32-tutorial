@@ -4,7 +4,11 @@
 #include "freertos/task.h"                                                      // FreeRTOS task functions
 #include "esp_log.h"                                                            // Logging operations
 
-// Definitions
+// Tag names
+#define MAIN_TAG                            "main_task"
+#define LED_TASK_TAG                        "led_task"
+
+// LED information
 #define LED_PIN                 GPIO_NUM_22
 #define LED_ON                  1
 #define LED_OFF                 0
@@ -12,13 +16,9 @@
 #define LED_INTERVAL_OFF_MS     1000
 #define LED_REPEAT              5
 
-// Debug
-char *mainTag = "main_task";
-char *ledTaskTag = "led_task";
-
 // Task info
 TaskHandle_t xTaskHandleLED = NULL;                                                 // Handle of the task
-char* pcTaskNameLED = "MY_LED_TASK";                                                // Name of the task
+char* pcTaskNameLED = "LED_TASK";                                                   // Name of the task
 UBaseType_t uxTaskPriorityLED = tskIDLE_PRIORITY + 1;                               // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthLED = configMINIMAL_STACK_SIZE * 8;    // Task stack size
 
@@ -37,17 +37,17 @@ void vTaskFunctionLED(void* argument) {
     xTaskWakeTime = xTaskGetTickCount();
 
     // Loop it
-    while(counter < LED_REPEAT) {
+    while (counter < LED_REPEAT) {
 
         // Set pin level to 1
-        ESP_LOGI(ledTaskTag, "LED ON!");
+        ESP_LOGI(LED_TASK_TAG, "LED ON");
         gpio_set_level(LED_PIN, LED_ON);
 
         // Wait for LED ON period
         xTaskDelayUntil(&xTaskWakeTime, xTaskSleepLEDOn);
 
         // Set pin level to 1
-        ESP_LOGI(ledTaskTag, "LED OFF!");
+        ESP_LOGI(LED_TASK_TAG, "LED OFF");
         gpio_set_level(LED_PIN, LED_OFF);
 
         // Wait for LED OFF period
@@ -59,7 +59,7 @@ void vTaskFunctionLED(void* argument) {
     }
 
     // Self delete
-    ESP_LOGI(ledTaskTag, "Self deleting, goodbye!");
+    ESP_LOGI(LED_TASK_TAG, "Self deleting, goodbye");
     vTaskDelete(NULL);
 
 }
@@ -78,15 +78,15 @@ void app_main(void) {
 
     // Setup the LED pin
     gpio_setup();
-    ESP_LOGI(mainTag, "GPIO setup complete!");
+    ESP_LOGI(MAIN_TAG, "GPIO setup complete");
 
     // Create the task
-    if(xTaskCreate(vTaskFunctionLED, pcTaskNameLED, usTaskStackDepthLED, NULL, uxTaskPriorityLED, &xTaskHandleLED) != pdPASS) {
-        ESP_LOGE(mainTag, "Task creation error! Exiting...");
+    if (xTaskCreate(vTaskFunctionLED, pcTaskNameLED, usTaskStackDepthLED, NULL, uxTaskPriorityLED, &xTaskHandleLED) != pdPASS) {
+        ESP_LOGE(MAIN_TAG, "Task creation error, exiting");
         return;
     }
-    ESP_LOGI(mainTag, "Task creation complete!");
+    ESP_LOGI(MAIN_TAG, "Task creation complete");
 
-    ESP_LOGI(mainTag, "Exiting...");
+    ESP_LOGI(MAIN_TAG, "Exiting %s", __func__);
 
 }
