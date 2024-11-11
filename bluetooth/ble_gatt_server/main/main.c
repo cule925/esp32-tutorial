@@ -5,7 +5,6 @@
 #include "driver/gpio.h"                                                        // GPIO operations
 #include "freertos/FreeRTOS.h"                                                  // FreeRTOS kernel
 #include "freertos/task.h"                                                      // FreeRTOS task functions
-#include "freertos/event_groups.h"                                              // FreeRTOS event groups
 #include "esp_log.h"                                                            // Logging operations
 
 #include "nvs_flash.h"                                                          // NVM flash operations
@@ -19,6 +18,9 @@
 // Tag names
 #define MAIN_TAG                            "main_task"
 #define EVENT_HANDLER_TAG                   "event_handler"
+
+// Maximum packet size
+#define LOCAL_MTU                           500
 
 // GAP configuration flags
 #define GAP_ADV_CONFIG_DONE_FLAG            (1 << 0)
@@ -78,7 +80,7 @@ esp_ble_adv_params_t adv_params = {
     .adv_int_min                = 0x20,                                     // Minimum advertising interval in units of 0.625 ms
     .adv_int_max                = 0x40,                                     // Maximum advertising interval in units of 0.625 ms
     .adv_type                   = ADV_TYPE_IND,                             // Advertising type: connectable, scannable, undirected
-    .own_addr_type              = BLE_ADDR_TYPE_PUBLIC,                     // Type of Bluetooth address: static and public
+    .own_addr_type              = BLE_ADDR_TYPE_PUBLIC,                     // Type of Bluetooth address to use: static and public
     //.peer_addr                =
     //.peer_addr_type           =
     .channel_map                = ADV_CHNL_ALL,                             // Advertising channel: all three (37, 38, 39)
@@ -94,7 +96,6 @@ uint8_t adv_config_done = 0;
 // GATT server profile information
 uint16_t profile_gatts_if = ESP_GATT_IF_NONE;                           // GATT server profile interface, initialize it to none
 esp_gatts_cb_t profile_event_handler = gatts_profile_event_handler;     // GATT server profile callback, initialize it to the handler
-uint16_t profile_id;                                                    // GATT server profile ID
 
 // GATT server connection information
 uint16_t conn_id;                                                       // GATT server connection ID
@@ -103,23 +104,30 @@ uint16_t conn_id;                                                       // GATT 
 uint16_t service_handle;                                                // GATT server service handle
 esp_gatt_srvc_id_t service_id;                                          // GATT server service ID
 
-// GATT server LED ON/OFF characteristic
+// GATT server LED ON/OFF characteristic information
 uint16_t char_led_handle;                                               // Characteristic handler
 esp_bt_uuid_t char_led_uuid;                                            // Characteristic UUID
 esp_gatt_perm_t char_led_perm;                                          // Characteristic permissions (read, write, ...)
 esp_gatt_char_prop_t char_led_property;                                 // Characteristic property
+uint8_t led_initial_value = 2;                                          // Characteristic initial value
+
+esp_attr_value_t char_initial_value = {                                 // Characteristic initial value data structure
+    .attr_max_len = sizeof(uint8_t),                                    // Maximum length of the value
+    .attr_len     = sizeof(uint8_t),                                    // Initial attribute length
+    .attr_value   = &led_initial_value,                                 // Pointer to the initial value
+};
 
 // GAP advertising data setup
 void gap_setup_adv_and_rsp_data() {
 
     // Configure advertising data
     esp_err_t ret = esp_ble_gap_config_adv_data(&adv_data);
-    if (ret) ESP_LOGE(EVENT_HANDLER_TAG, "config adv data failed, error code = %x", ret);
+    if (ret) ESP_LOGE(EVENT_HANDLER_TAG, "Configuring advertising data failed, error code %x", ret);
     adv_config_done |= GAP_ADV_CONFIG_DONE_FLAG;                                                    // |= 0x00..01
 
     // Configure scan response data
     ret = esp_ble_gap_config_adv_data(&scan_rsp_data);
-    if (ret) ESP_LOGE(EVENT_HANDLER_TAG, "config scan response data failed, error code = %x", ret);
+    if (ret) ESP_LOGE(EVENT_HANDLER_TAG, "Configuring scan response data failed, error code %x", ret);
     adv_config_done |= GAP_SCAN_RSP_CONFIG_DONE_FLAG;                                               // |= 0x00..02
 
 }
@@ -145,7 +153,7 @@ void gatts_setup_service(esp_gatt_if_t gatts_if) {
 void gatts_setup_led_characteristic() {
 
     // Return value
-    esp_err_t add_char_ret;
+    esp_err_t ret;
 
     // LED ON/OFF characteristic data
     char_led_uuid.len = ESP_UUID_LEN_16;                                                    // Characteristic UUID length
@@ -154,8 +162,8 @@ void gatts_setup_led_characteristic() {
     char_led_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE;         // Characteristic property
 
     // Add the characteristic to the service, generates ESP_GATTS_ADD_CHAR_EVT event upon competion
-    add_char_ret = esp_ble_gatts_add_char(service_handle, &char_led_uuid, char_led_perm, char_led_property, NULL, NULL);
-    if (add_char_ret) ESP_LOGE(EVENT_HANDLER_TAG, "Adding LED characteristic failed, error code = %x", add_char_ret);
+    ret = esp_ble_gatts_add_char(service_handle, &char_led_uuid, char_led_perm, char_led_property, &char_initial_value, NULL);
+    if (ret) ESP_LOGE(EVENT_HANDLER_TAG, "REG_EVT, adding LED characteristic failed, error code %x", ret);
 
     // Start service
     esp_ble_gatts_start_service(service_handle);
@@ -228,7 +236,7 @@ void char_led_write_handler(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *pa
 
 }
 
-// GATT server profile event handler definition
+// GATT server profile event handler
 void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
 
     // Handle event
@@ -236,25 +244,24 @@ void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
 
         // Setup service when register event
         case ESP_GATTS_REG_EVT:
-            ESP_LOGI(EVENT_HANDLER_TAG, "REGISTER_APP_EVT, status %d, app_id %d", param->reg.status, param->reg.app_id);
+            ESP_LOGI(EVENT_HANDLER_TAG, "REG_EVT, status %d, app_id %d", param->reg.status, param->reg.app_id);
             gatts_setup_service(gatts_if);                              // Setup service
             break;
 
         // Setup characteristic when register event
         case ESP_GATTS_CREATE_EVT:
-            ESP_LOGI(EVENT_HANDLER_TAG, "CREATE_SERVICE_EVT, status %d, service_handle %d", param->create.status, param->create.service_handle);
+            ESP_LOGI(EVENT_HANDLER_TAG, "CREATE_EVT, status %d, service_handle %d", param->create.status, param->create.service_handle);
             service_handle = param->create.service_handle;              // Store service handle
             gatts_setup_led_characteristic();                           // Setup LED characteristic
             break;
 
         // When start service complete event
         case ESP_GATTS_START_EVT:
-            ESP_LOGI(EVENT_HANDLER_TAG, "SERVICE_START_EVT, status %d, service_handle %d", param->start.status, param->start.service_handle);
+            ESP_LOGI(EVENT_HANDLER_TAG, "START_EVT, status %d, service_handle %d", param->start.status, param->start.service_handle);
             break;
 
-        // Setup characteristic when register event
+        // Setup handler and initial value when characteristic event
         case ESP_GATTS_ADD_CHAR_EVT:
-            
             ESP_LOGI(EVENT_HANDLER_TAG, "ADD_CHAR_EVT, status %d, attr_handle %d, service_handle %d", param->add_char.status, param->add_char.attr_handle, param->add_char.service_handle);
             if (param->add_char.char_uuid.uuid.uuid16 == GATTS_CHAR_LED_UUID) char_led_handle = param->add_char.attr_handle;
             break;
@@ -281,24 +288,24 @@ void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
 
         // Call appropriate handler when read event
         case ESP_GATTS_READ_EVT:
-            ESP_LOGI(EVENT_HANDLER_TAG, "GATT_READ_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d", param->read.conn_id, param->read.trans_id, param->read.handle);
+            ESP_LOGI(EVENT_HANDLER_TAG, "READ_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d", param->read.conn_id, param->read.trans_id, param->read.handle);
             if (param->read.handle == char_led_handle) char_led_read_handler(gatts_if, param);
             break;
 
         // Call appropriate handler when write event
         case ESP_GATTS_WRITE_EVT:
-            ESP_LOGI(EVENT_HANDLER_TAG, "GATT_WRITE_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d", param->write.conn_id, param->write.trans_id, param->write.handle);
+            ESP_LOGI(EVENT_HANDLER_TAG, "WRITE_EVT, conn_id %d, trans_id %" PRIu32 ", handle %d", param->write.conn_id, param->write.trans_id, param->write.handle);
             if (param->write.handle == char_led_handle) char_led_write_handler(gatts_if, param);
             break;
 
         // When change MTU event
         case ESP_GATTS_MTU_EVT:
-            ESP_LOGI(EVENT_HANDLER_TAG, "ESP_GATTS_MTU_EVT, MTU %d", param->mtu.mtu);
+            ESP_LOGI(EVENT_HANDLER_TAG, "MTU_EVT, MTU %d", param->mtu.mtu);
             break;
         
         // In case of other events
         /*
-        case ESP_GATTS_NOTIFY
+        case ESP_GATTS_NOTIFY:
         case ESP_GATTS_EXEC_WRITE_EVT:
         case ESP_GATTS_ADD_INCL_SRVC_EVT:
         case ESP_GATTS_ADD_CHAR_DESCR_EVT:
@@ -315,6 +322,7 @@ void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
         case ESP_GATTS_CREAT_ATTR_TAB_EVT:
         case ESP_GATTS_SET_ATTR_VAL_EVT:
         case ESP_GATTS_SEND_SERVICE_CHANGE_EVT:
+        ...
         */
 
         default:
@@ -334,13 +342,13 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
         if (param->reg.status == ESP_GATT_OK) {
             profile_gatts_if = gatts_if;
         } else {
-            ESP_LOGE(EVENT_HANDLER_TAG, "Registering application profile failed, app_id %04x, status %d", param->reg.app_id, param->reg.status);
+            ESP_LOGE(EVENT_HANDLER_TAG, "ESP_GATTS_REG_EVT, registering application profile failed, app_id %04x, status %d", param->reg.app_id, param->reg.status);
             return;
         }
 
     }
 
-    // If GATT interface is equal to none of the profiles (broadcast) or it equal to the profile GATT interface 
+    // If GATT interface is equal to none of the profiles (broadcast) or it equal to the profile GATT interface
     if (gatts_if == ESP_GATT_IF_NONE || gatts_if == profile_gatts_if) {
 
         // Call handler if handler pointer not NULL
@@ -370,17 +378,17 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 
         // When advertising start is complete
         case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
-            if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) ESP_LOGE(EVENT_HANDLER_TAG, "Advertising start failed");
+            if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) ESP_LOGE(EVENT_HANDLER_TAG, "Advertising start failed, error code %x", param->adv_start_cmpl.status);
             break;
 
         // When advertising stop is complete
         case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
-            if (param->adv_stop_cmpl.status != ESP_BT_STATUS_SUCCESS) ESP_LOGE(EVENT_HANDLER_TAG, "Advertising stop failed");
+            if (param->adv_stop_cmpl.status != ESP_BT_STATUS_SUCCESS) ESP_LOGE(EVENT_HANDLER_TAG, "Advertising stop failed, error code %x", param->adv_stop_cmpl.status);
             break;
 
         // When update connection parameters is complete
         case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
-            ESP_LOGI(EVENT_HANDLER_TAG, "Update connection parameters: status = %d, conn_int = %d, latency = %d, timeout = %d",
+            ESP_LOGI(EVENT_HANDLER_TAG, "Update connection parameters: status %d, conn_int %d, latency %d, timeout %d",
                   param->update_conn_params.status,
                   param->update_conn_params.conn_int,
                   param->update_conn_params.latency,
@@ -389,7 +397,7 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 
         // When set MTU packet length is complete
         case ESP_GAP_BLE_SET_PKT_LENGTH_COMPLETE_EVT:
-            ESP_LOGI(EVENT_HANDLER_TAG, "Packet length updated: rx = %d, tx = %d, status = %d",
+            ESP_LOGI(EVENT_HANDLER_TAG, "Packet length updated: rx %d, tx %d, status %d",
                   param->pkt_data_length_cmpl.params.rx_len,
                   param->pkt_data_length_cmpl.params.tx_len,
                   param->pkt_data_length_cmpl.status);
@@ -403,26 +411,26 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 }
 
 // Setup GATT server
-esp_err_t gatt_server_setup() {
+esp_err_t gatts_setup() {
 
     // Register GATT server callback function
     esp_err_t ret = esp_ble_gatts_register_callback(gatts_event_handler);
     if (ret) {
-        ESP_LOGE(MAIN_TAG, "GATT server register error, error code = %x", ret);
+        ESP_LOGE(MAIN_TAG, "GATT server register error, error code %x", ret);
         return ret;
     }
 
     // Register profile, generates an ESP_GATTS_REG_EVT event upon completion
     ret = esp_ble_gatts_app_register(PROFILE_ID);
     if (ret) {
-        ESP_LOGE(MAIN_TAG, "GATT server register error, error code = %x", ret);
+        ESP_LOGE(MAIN_TAG, "GATT server register error, error code %x", ret);
         return ret;
     }
 
     // Sets maximum packet transmission size, generates ESP_GATTS_MTU_EVT event upon completion
-    ret = esp_ble_gatt_set_local_mtu(500);
+    ret = esp_ble_gatt_set_local_mtu(LOCAL_MTU);
     if (ret) {
-        ESP_LOGE(MAIN_TAG, "Set local MTU failed, error code = %x", ret);
+        ESP_LOGE(MAIN_TAG, "Set local MTU failed, error code %x", ret);
     }
 
     return ret;
@@ -435,7 +443,7 @@ esp_err_t gap_setup() {
     // Register GAP callback function
     esp_err_t ret = esp_ble_gap_register_callback(gap_event_handler);
     if (ret) {
-        ESP_LOGE(MAIN_TAG, "GAP register error, error code = %x", ret);
+        ESP_LOGE(MAIN_TAG, "GAP register error, error code %x", ret);
         return ret;
     }
 
@@ -452,7 +460,7 @@ esp_err_t bluedroid_stack_setup() {
     // Initialize Bluetooth host stack
     ret = esp_bluedroid_init();
     if (ret) {
-        ESP_LOGE(MAIN_TAG, "Init Bluetooth host stack failed: %s, in funcrion %s", esp_err_to_name(ret), __func__);
+        ESP_LOGE(MAIN_TAG, "Init Bluetooth host stack failed: %s, in function %s", esp_err_to_name(ret), __func__);
         return ret;
     }
 
@@ -545,7 +553,7 @@ void app_main(void) {
     if (gap_setup() != ESP_OK) return;
 
     // Setup GATT server
-    if (gatt_server_setup() != ESP_OK) return;
+    if (gatts_setup() != ESP_OK) return;
 
     return;
 

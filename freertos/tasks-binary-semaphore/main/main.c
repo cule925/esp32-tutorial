@@ -21,13 +21,13 @@ SemaphoreHandle_t xFirstSemaphore, xSecondSemaphore;
 
 // First LED pattern task info
 TaskHandle_t xTaskHandleFirstLEDPattern = NULL;                                                         // Handle of the task
-char* pcTaskNameFirstLEDPattern = "MY_FIRST_LED_PATTERN_TASK";                                          // Name of the task
+char* pcTaskNameFirstLEDPattern = "MY_FIRST_LED_PATTERN_TASK";                                          // Name of the task (maximum size is 16 characters)
 UBaseType_t uxTaskPriorityFirstLEDPattern = tskIDLE_PRIORITY + 1;                                       // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthFirstLEDPattern = configMINIMAL_STACK_SIZE * 8;            // Task stack size
 
 // Second LED pattern task info
 TaskHandle_t xTaskHandleSecondLEDPattern = NULL;                                                        // Handle of the task
-char* pcTaskNameSecondLEDPattern = "MY_SECOND_LED_PATTERN_TASK";                                        // Name of the task
+char* pcTaskNameSecondLEDPattern = "MY_SECOND_LED_PATTERN_TASK";                                        // Name of the task (maximum size is 16 characters)
 UBaseType_t uxTaskPrioritySecondLEDPattern = tskIDLE_PRIORITY + 1;                                      // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthSecondLEDPattern = configMINIMAL_STACK_SIZE * 8;           // Task stack size
 

@@ -18,7 +18,7 @@
 
 // Task info
 TaskHandle_t xTaskHandleLED = NULL;                                                 // Handle of the task
-char* pcTaskNameLED = "LED_TASK";                                                   // Name of the task
+char* pcTaskNameLED = "LED";                                                        // Name of the task (maximum size is 16 characters)
 UBaseType_t uxTaskPriorityLED = tskIDLE_PRIORITY + 1;                               // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthLED = configMINIMAL_STACK_SIZE * 8;    // Task stack size
 

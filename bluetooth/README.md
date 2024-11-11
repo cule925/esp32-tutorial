@@ -139,6 +139,10 @@ Potrebno je uzeti u obzir:
 	- interval između uspješnih događaja konekcija ako *slave* preskoči *Slave Latency* broj događaja konekcija
 	- formula: *Effective Connection Interval* = (*Connection Interval*) * (1 + *Slave Latency*)
 
+Tijekom oglašavanja, periferija može u podatcima oglašavanja uključivati UUID servisa oglašavanja (koji je različit od UUID servisa, UUID karakteristike ili UUID opisnika kod GATT-a), naziv uređaja, snagu odašiljanja, podatke o proizvođaču i slično.
+
+UUID servis oglašavanja se može definirati kao 16 bitni UUID koji je [standardiziran od SIG-a](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf?v=1731291575293#5.2) i označava neku ulogu uređaja koji se oglašava. Ako se ne želi pridržavati standarda, umjesto da se koriste već rezervirani 16 bitni UUID-ovi, preporučuje se koristiti 128 bitne UUID-ove za vlastite svrhe.
+
 ### BLE GATT
 
 [GATT - Generic Attribute Profile](https://software-dl.ti.com/lprf/sdg-latest/html/ble-stack-3.x/gatt.html) je dio *host* stoga koji se koristi za razmjenu podataka između BLE uređaja. BLE uređaji nakon povezivanja mogu imati uloge:
@@ -161,6 +165,7 @@ Osnovni pojmovi:
 	- sadrži nula ili više servisa
 - *Service*
 	- servis
+	- ima svoj UUID
 	- logički skup povezanih karakteristika
 	- sadrži nula ili više karakteristika
 - *Characteristic*
@@ -213,9 +218,11 @@ Slikovito:
         +------------------------------------------------------+        +------------------------------------------------------+
 ```
 
+UUID servisi, karakteristike i opisnici se također mogu definirati kao 16 bitni UUID-ovi koji su [standardizirani od SIG-a](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf?v=1731291575293#6.2) i označavaju neku ulogu. Ako se ne želi pridržavati standarda, umjesto da se koriste već rezervirani 16 bitni UUID-ovi, preporučuje se koristiti 128 bitne UUID-ove za vlastite svrhe.
+
 ### ESP32 kao GATT poslužitelj
 
-U nastavku slijede bitne funkcije koje se koriste za GATT poslužitelj (službeni primjer ESP-IDF-a može se naći [ovdje](https://github.com/espressif/esp-idf/blob/v5.2.3/examples/bluetooth/bluedroid/ble/gatt_server/tutorial/Gatt_Server_Example_Walkthrough.md)). ESP32 će se konfigurirati kao **BLE periferija** uređaj.
+U nastavku slijede bitne funkcije koje se koriste za GATT poslužitelj (službeni primjer ESP-IDF-a može se naći [ovdje](https://github.com/espressif/esp-idf/blob/v5.2.3/examples/bluetooth/bluedroid/ble/gatt_server/tutorial/Gatt_Server_Example_Walkthrough.md)). ESP32 će se konfigurirati kao **BLE periferija**.
 
 #### Flash memorija za trajnu pohranu podataka
 
@@ -383,8 +390,8 @@ Parametar ove funkcije je:
 				- *ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT* - kada je slanje odgovora na skeniranje mreže nekog drugog BLE uređaja (ako je oglašena zadana struktura podataka) dovršeno
 				- *ESP_GAP_BLE_ADV_START_COMPLETE_EVT* - kada je općenito pokrenuto oglašavanja
 				- *ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT* - kada je općenito zaustavljeno oglašavanje
-				- *ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT* - kada se BLE parametri za konekciju ažuriraju
-				- *ESP_GAP_BLE_SET_PKT_LENGTH_COMPLETE_EVT* - kada se postavi veličina paketa
+				- *ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT* - kada su se BLE parametri za konekciju ažurirali
+				- *ESP_GAP_BLE_SET_PKT_LENGTH_COMPLETE_EVT* - kada se postavila veličina paketa
 				- *ESP_GAP_BLE_GET_DEV_NAME_COMPLETE_EVT* - kada se ime BLE uređaja dohvati
 
 		- *param*
@@ -423,7 +430,7 @@ Parametar ove funkcije je:
 
 Funkcija vraća *ESP_OK* kada ako je konfiguracija podataka oglašavanja uspješno postavljena. Član *set_scan_rsp* definira je li se struktura koristi kao struktura podataka za oglašavanje ili struktura podataka za odgovor na skeniranje.
 
-BLE središnji uređaj će detektirati strukture oglašavanja BLE periferija skeniranjem. Ako BLE središnji uređaj želi više informacija o konkretnoj BLE periferiji, poslat će zahtjev točno toj BLE periferiji, a ta periferija će odgovoriti strukturom podataka za odgovor na skeniranje.
+BLE središnji uređaj će detektirati strukture oglašavanja BLE periferija skeniranjem. Ako BLE središnji uređaj želi više informacija o konkretnoj BLE periferiji, poslat će zahtjev točno toj BLE periferiji, a ta periferija će odgovoriti strukturom podataka za odgovor na skeniranje. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT* ili *ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT*, ovisno koja jesu li postaljeni podatci za oglašavanje ili odgovor na skeniranje.
 
 ##### Struktura podataka za konfiguriranje podataka oglašavanja i odgovora na skeniranje
 
@@ -469,7 +476,7 @@ Parametar ove funkcije je:
 - *params*
 	- pokazivač na definiranu konfiguraciju parametara konekcije
 
-Funkcija vraća *ESP_OK* kada ako je konfiguracija parametara konekcije uspješno postavljena.
+Funkcija vraća *ESP_OK* kada ako je konfiguracija parametara konekcije uspješno postavljena. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT*.
 
 ##### Struktura podataka za konfiguriranje parametara konekcije
 
@@ -498,7 +505,7 @@ Parametar ove funkcije je:
 - *adv_params*
 	- pokazivač na definiranu konfiguraciju parametara oglašavanja, definira način rada BLE-a
 
-Funkcija vraća *ESP_OK* kada ako je konfiguracija parametara oglašavanja uspješno postavljena i započeto je oglašavanje.
+Funkcija vraća *ESP_OK* kada ako je konfiguracija parametara oglašavanja uspješno postavljena i započeto je oglašavanje. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GAP_BLE_ADV_START_COMPLETE_EVT*.
 
 ##### Struktura podataka za konfiguriranje parametara oglašavanja
 
@@ -541,16 +548,28 @@ Struktura *esp_ble_adv_params_t* sastoji se od sljedećih članova:
 		- *ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST* - bilo koji uređaji mogu skenirati i otkriti trenutni uređaj, ali samo uređaji s liste odobrenih uređaja se mogu povezati na trenutni uređaj
 		- *ADV_FILTER_ALLOW_SCAN_WLST_CON_WLST* - samo uređaji s liste odobrenih uređaja mogu skenirati, otkriti i povezati se na trenutni uređaj
 
-#### Zaustavljanje oglašavanja
+##### Zaustavljanje oglašavanja
 ```
 esp_err_t esp_ble_gap_stop_advertising(void)
 ```
 
-Funkcija vraća *ESP_OK* kada ako je zaustavljeno oglašavanje.
+Funkcija vraća *ESP_OK* kada ako je zaustavljeno oglašavanje. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT*.
 
-#### GATT funkcionalnost
+##### Postavljanje veličine MTU paketa
+```
+esp_err_t esp_ble_gatt_set_local_mtu(uint16_t mtu)
+```
 
-Kako bi upravljali [GATT funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gatts.html#api-reference), potrebno je uključiti zaglavlje ```esp_gatts_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
+Parametar ove funkcije je:
+
+- *mtu*
+	- veličina MTU paketa koje će uređaj koristiti
+
+Funkcija vraća *ESP_OK* kada ako je uspješno postavljena veličina MTU paketa. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT*. Za korištenje ove funkcije potrebno je uključiti zaglavlje ```esp_gatt_common_api.h```.
+
+#### GATT poslužitelj funkcionalnost
+
+Kako bi upravljali [GATT poslužitelj funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gatts.html#api-reference), potrebno je uključiti zaglavlje ```esp_gatts_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
 
 ##### Registriranje callback (handler) funkcije za GATT događaj
 ```
@@ -593,7 +612,7 @@ Parametar ove funkcije je:
 - *app_id*
 	- podatak koji označava identifikator profila
 
-Funkcija vraća *ESP_OK* kada je profil aplikacije uspješno registriran. Pozivanjem ove funkcije dogodit će se događaj *ESP_GATTS_REG_EVT*.
+Funkcija vraća *ESP_OK* kada je profil aplikacije uspješno registriran. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GATTS_REG_EVT*.
 
 ##### Odjava profila aplikacije
 ```
@@ -605,7 +624,7 @@ Parametar ove funkcije je:
 - *gatts_if*
 	- GATT sučelje koje BLE stog dodjeljuje prilikom registracije
 
-Funkcija vraća *ESP_OK* kada je profil aplikacije uspješno odjavljen. Pozivanjem ove funkcije dogodit će se događaj *ESP_GATTS_UNREG_EVT*.
+Funkcija vraća *ESP_OK* kada je profil aplikacije uspješno odjavljen. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GATTS_UNREG_EVT*.
 
 ##### Stvaranje servisa
 ```
@@ -621,7 +640,7 @@ Parametri ove funkcije su:
 - *num_handle*
 	- broj handleova koji će biti rezervirani za taj servis
 
-Funkcija vraća *ESP_OK* kada je servis uspješno stvoren. Pozivanjem ove funkcije dogodit će se događaj *ESP_GATTS_CREATE_EVT*.
+Funkcija vraća *ESP_OK* kada je servis uspješno stvoren. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GATTS_CREATE_EVT*.
 
 ##### Struktura identifikatora servisa
 
@@ -653,7 +672,7 @@ Parametar ove funkcije je:
 - *service_handle*
 	- handle na servis
 
-Funkcija vraća *ESP_OK* kada je servis uspješno odjavljen. Pozivanjem ove funkcije dogodit će se događaj *ESP_GATTS_DELETE_EVT*.
+Funkcija vraća *ESP_OK* kada je servis uspješno odjavljen. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GATTS_DELETE_EVT*.
 
 ##### Započinjanje rada servisa
 ```
@@ -665,7 +684,7 @@ Parametar ove funkcije je:
 - *service_handle*
 	- handle na servis
 
-Funkcija vraća *ESP_OK* kada je rad servisa uspješno započet. Pozivanjem ove funkcije dogodit će se događaj *ESP_GATTS_START_EVT*.
+Funkcija vraća *ESP_OK* kada je rad servisa uspješno započet. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GATTS_START_EVT*.
 
 ##### Zaustavljanje rada servisa
 ```
@@ -677,7 +696,7 @@ Parametar ove funkcije je:
 - *service_handle*
 	- handle na servis
 
-Funkcija vraća *ESP_OK* kada je rad servisa uspješno započet. Pozivanjem ove funkcije dogodit će se događaj *ESP_GATTS_STOP_EVT*.
+Funkcija vraća *ESP_OK* kada je rad servisa uspješno započet. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GATTS_STOP_EVT*.
 
 ##### Dodaj karakteristiku servisu
 ```
@@ -707,7 +726,7 @@ Parametri ove funkcije su:
 - *control*
 	- dodatne kontrole pristupa, najčešće NULL
 
-Funkcija vraća *ESP_OK* kada je karakteristika uspješno dodana. Pozivanjem ove funkcije dogodit će se događaj *ESP_GATTS_ADD_CHAR_EVT*.
+Funkcija vraća *ESP_OK* kada je karakteristika uspješno dodana. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GATTS_ADD_CHAR_EVT*.
 
 ##### Dodaj opisnik karakteristike karakteristici
 ```
@@ -732,7 +751,7 @@ Parametri ove funkcije su:
 - *control*
 	- dodatne kontrole pristupa, najčešće NULL
 
-Funkcija vraća *ESP_OK* kada je opisnik karakteristike uspješno dodan. Pozivanjem ove funkcije dogodit će se događaj *ESP_GATTS_ADD_DESCR_EVT*.
+Funkcija vraća *ESP_OK* kada je opisnik karakteristike uspješno dodan. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GATTS_ADD_DESCR_EVT*.
 
 ##### Slanje odgovora na zahtjev
 
@@ -761,6 +780,118 @@ Parametri ove funkcije su:
 		- *handle*
 			- handle karakteristike
 
-Funkcija vraća *ESP_OK* kada je karakteristika uspješno dodana. Pozivanjem ove funkcije dogodit će se događaj *ESP_GATTS_RESPONSE_EVT*.
+Funkcija vraća *ESP_OK* kada je karakteristika uspješno dodana. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GATTS_RESPONSE_EVT*.
 
+### ESP32 kao GATT klijent
+
+U nastavku slijede bitne funkcije koje se koriste za GATT klijent (službeni primjer ESP-IDF-a može se naći [ovdje](https://github.com/espressif/esp-idf/blob/v5.2.3/examples/bluetooth/bluedroid/ble/gatt_server/tutorial/Gatt_Server_Example_Walkthrough.md)). ESP32 će se konfigurirati kao **BLE centralni uređaj**.
+
+Funkcije za upravljanje Flash memorijom, upravljanje Bluetooth upravljačkim sklopom i virtualnim HCI-om te upravljanje Bluedroid host stogom Bluetootha su iste kao i za GATT poslužitelj. Funkcije za GAP i GATT funkcionalnosti su drugačije.
+
+#### GAP funkcionalnost
+
+Kako bi upravljali [GAP funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gap_ble.html#api-reference), potrebno je uključiti zaglavlje ```esp_gap_ble_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
+
+##### Registriranje callback (handler) funkcije za GAP događaj
+```
+esp_err_t esp_ble_gap_register_callback(esp_gap_ble_cb_t callback)
+```
+
+Parametar ove funkcije je:
+
+- *callback*
+	- funkcija oblika *void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)* čiji su parametri:
+		- *event*
+			- GAP događaj na kojeg će se pozvati *callback*, enumerator koji može primjerice poprimiti vrijednosti:
+				- *ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT* - kada je postavljanje parametara za skeniranje dovršeno
+				- *ESP_GAP_BLE_SCAN_START_COMPLETE_EVT* - kada završilo započinjanje skeniranja
+				- *ESP_GAP_BLE_SCAN_RESULT_EVT* - kada je dostupan rezultat skeniranja
+				- *ESP_GAP_BLE_SCAN_STOP_COMPLETE_EVT* - kada završilo zaustavljanje skeniranja
+				- *ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT* - kada su se BLE parametri za konekciju ažurirali
+				- *ESP_GAP_BLE_SET_PKT_LENGTH_COMPLETE_EVT* - kada se postavila veličina paketa
+
+		- *param*
+			- pokazivač na uniju koja se proslijedi funkciji kada se dogodi neki GAP događaj
+
+Funkcija vraća *ESP_OK* kada ako je *callback* uspješno registriran. Iako je ova funkcija već bila navedena, potrebno je obratiti pažnju na drugačije događaje.
+
+##### Započni skeniranje
+```
+esp_err_t esp_ble_gap_start_scanning(uint32_t duration)
+```
+
+Parametar ove funkcije je:
+
+- *duration*
+	- broj sekundi koliko treba dugo treba skenirati
+
+Funkcija vraća *ESP_OK* ako je skeniranje uspješno započeto. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GAP_BLE_SCAN_START_COMPLETE_EVT*.
+
+##### Zaustavi skeniranje
+```
+esp_err_t esp_ble_gap_stop_scanning(void)
+```
+
+Funkcija vraća *ESP_OK* ako je skeniranje uspješno završilo. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GAP_BLE_SCAN_STOP_COMPLETE_EVT*.
+
+##### Postavi parametre za skeniranje
+```
+esp_err_t esp_ble_gap_set_scan_params(esp_ble_scan_params_t *scan_params)
+```
+
+Parametar ove funkcije je:
+
+- *scan_params*
+	- struktura koja definira parametre koji će se koristiti prilikom skeniranja
+
+Funkcija vraća *ESP_OK* ako je postavljanje parametara uspješno završilo. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GAP_BLE_SCAN_PARAM_SET_COMPLETE_EVT*.
+
+##### Struktura podataka za konfiguriranje parametara oglašavanja
+
+Struktura *esp_ble_scan_params_t* sastoji se od sljedećih članova:
+
+- *scan_type*
+	- podatak tipa *esp_ble_scan_type_t* koji označava vrstu skeniranja, enumeratori:
+		- *BLE_SCAN_TYPE_PASSIVE* - samo skeniraj
+		- *BLE_SCAN_TYPE_ACTIVE* - skeniraj i odgovori
+- *own_addr_type*
+	- podatak tipa *esp_ble_addr_type_t* koji označava vrstu vlastite adrese, enumeratori:
+		- *BLE_ADDR_TYPE_PUBLIC* - statička, javna adresa
+		- *BLE_ADDR_TYPE_RANDOM* - dinamička, slučajno generirana adresa
+		- *BLE_ADDR_TYPE_RPA_PUBLIC* - statička, RPA (*eng. Resolvable Private Address*) javna adresa
+		- *BLE_ADDR_TYPE_RPA_RANDOM* - dinamička, RPA (*eng. Resolvable Private Address*) slučajno generirana adresa
+- *scan_filter_policy*
+	- podatak tipa *esp_ble_scan_filter_t* koji definira politiku skeniranja, neki enumeratori:
+		- *BLE_SCAN_FILTER_ALLOW_ALL* - prihvati sve pakete osim direktiranih koji nisu direktirani na ovaj uređaj
+		- *BLE_SCAN_FILTER_ALLOW_ONLY_WLST* - prihvati sve pakete s uređaja koji su odobreni osim direktiranih koji nisu direktirani na ovaj uređaj
+		- *BLE_SCAN_FILTER_ALLOW_UND_RPA_DIR* - prihvati nedirektirane pakete, direktirane pakete za ovaj uređaj i direktirane pakete za ovaj uređaj gdje je adresa inicijatora RPA 
+		- *BLE_SCAN_FILTER_ALLOW_WLIST_RPA_DIR* - prihvati nedirektirane pakete s uređaja koji su odobreni, direktirane pakete za ovaj uređaj i direktirane pakete za ovaj uređaj gdje je adresa inicijatora RPA
+- *scan_interval*
+	- podatak tipa *uint16_t* koji označava interval između dva skeniranja
+	- od 0x0004 do 0x4000, zadano 0x0010 (10 milisekundi), vremenski interval = *scan_interval* * 0.625 ms
+- *scan_window*
+	- podatak tipa *uint16_t* koji označava trajanje skeniranja
+	- od 0x0004 do 0x4000, zadano 0x0010 (10 milisekundi), vremenski interval = *scan_window* * 0.625 ms
+- *scan_duplicate*
+	- podatak tipa *uint16_t* koji označava je li treba skenirati duplikate, enumeratori:
+		- *BLE_SCAN_DUPLICATE_DISABLE* - onemogući
+		- *BLE_SCAN_DUPLICATE_ENABLE* - omogući
+		- *BLE_SCAN_DUPLICATE_ENABLE_RESET* - omogući s resetiranjem u svakom intervalu skeniranja (samo od BLE 5.0)
+		- *BLE_SCAN_DUPLICATE_MAX* - rezervirano
+
+##### Postavljanje veličine MTU paketa
+```
+esp_err_t esp_ble_gatt_set_local_mtu(uint16_t mtu)
+```
+
+Parametar ove funkcije je:
+
+- *mtu*
+	- veličina MTU paketa koje će uređaj koristiti
+
+Funkcija vraća *ESP_OK* kada ako je uspješno postavljena veličina MTU paketa. Nakon izvršenja ove funkcije dogodit će se događaj *ESP_GAP_BLE_SET_PKT_LENGTH_COMPLETE_EVT*. Za korištenje ove funkcije potrebno je uključiti zaglavlje ```esp_gatt_common_api.h```.
+
+#### GATT klijent funkcionalnost
+
+Kako bi upravljali [GATT klijent funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gattc.html#api-reference), potrebno je uključiti zaglavlje ```esp_gattc_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
 

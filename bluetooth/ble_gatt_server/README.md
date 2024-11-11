@@ -51,4 +51,10 @@ Organizacija podataka za trenutni uređaj odnosno GATT poslužitelj je sljedeća
         +-------------------------------+
 ```
 
+GATT poslužitelj ima sljedeće inicijalne konfiguracije:
+
+* UUID servisa odašiljanja: 128 bitni
+* UUID servisa: 16 bitni
+* UUID karakteristike: 16 bitni
+
 GATT klijent može biti ESP32 koji pokreće aplikaciju GATT klijenta iz ovog repozitorija ([ovdje](../ble_gatt_client/)), mobilna aplikacija ili program na računalu. Naravno, pametni mobitel i osobno računalo moraju imati ugrađen BLE.

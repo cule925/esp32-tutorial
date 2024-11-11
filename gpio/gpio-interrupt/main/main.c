@@ -28,14 +28,14 @@ int firstReady = 1;
 int secondReady = 1;
 
 // First LED pattern task information
-TaskHandle_t xTaskHandleFirstLEDPattern = NULL;                                                         // Handle of the task
-char* pcTaskNameFirstLEDPattern = "MY_FIRST_LED_PATTERN_TASK";                                          // Name of the task
+TaskHandle_t xTaskHandleFirstLEDPattern = NULL;                                                         // Handle of the task (maximum size 16 characters)
+char* pcTaskNameFirstLEDPattern = "PATTERN_1";                                                          // Name of the task
 UBaseType_t uxTaskPriorityFirstLEDPattern = tskIDLE_PRIORITY + 1;                                       // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthFirstLEDPattern = configMINIMAL_STACK_SIZE * 8;            // Task stack size
 
 // Second LED pattern task information
 TaskHandle_t xTaskHandleSecondLEDPattern = NULL;                                                        // Handle of the task
-char* pcTaskNameSecondLEDPattern = "MY_SECOND_LED_PATTERN_TASK";                                        // Name of the task
+char* pcTaskNameSecondLEDPattern =  "PATTERN_2";                                                        // Name of the task (maximum size 16 characters)
 UBaseType_t uxTaskPrioritySecondLEDPattern = tskIDLE_PRIORITY + 1;                                      // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthSecondLEDPattern = configMINIMAL_STACK_SIZE * 8;           // Task stack size
 

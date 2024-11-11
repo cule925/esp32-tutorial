@@ -22,13 +22,13 @@ QueueHandle_t xQueue;
 
 // Queue size checker task information
 TaskHandle_t xTaskHandleQueueSizeChecker = NULL;                                                // Handle of the task
-char* pcTaskNameQueueSizeChecker = "MY_QUEUE_SIZE_CHECKER_TASK";                                // Name of the task
+char* pcTaskNameQueueSizeChecker = "SIZE_CHECKER";                                              // Name of the task
 UBaseType_t uxTaskPriorityQueueSizeChecker = tskIDLE_PRIORITY + 1;                              // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthQueueSizeChecker = configMINIMAL_STACK_SIZE * 8;   // Task stack size
 
 // Sender task information
 TaskHandle_t xTaskHandleSender = NULL;                                                          // Handle of the task
-char* pcTaskNameSender = "MY_SENDER_TASK";                                                      // Name of the task
+char* pcTaskNameSender = "SENDER";                                                              // Name of the task
 UBaseType_t uxTaskPrioritySender = tskIDLE_PRIORITY + 1;                                        // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthSender = configMINIMAL_STACK_SIZE * 8;             // Task stack size
 char* pcFirstMessage = "Hello from sender!";
@@ -36,7 +36,7 @@ int senderAlive = 1;
 
 // Receiver task information
 TaskHandle_t xTaskHandleReceiver = NULL;                                                        // Handle of the task
-char* pcTaskNameReceiver = "MY_RECEIVER_TASK";                                                  // Name of the task
+char* pcTaskNameReceiver = "RECEIVER";                                                          // Name of the task
 UBaseType_t uxTaskPriorityReceiver = tskIDLE_PRIORITY + 1;                                      // Task priority (same as task main)
 const configSTACK_DEPTH_TYPE usTaskStackDepthReceiver = configMINIMAL_STACK_SIZE * 8;           // Task stack size
 int receiverAlive = 1;
