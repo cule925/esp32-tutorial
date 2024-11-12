@@ -61,7 +61,7 @@ ESP32 može raditi u načinu rada *Station*, načinu rada *Access Point* i u oba
 - maksimalna brzina prijenosa za Wi-Fi 4 je 150 Mbps
 - sadrži antenu koja se nalazi na modulu koja je povezana sa SoC-em
 
-Zaglavlje koje je potrebno uključiti za rad s [Wi-Fi operacijama (eng. GPIO API)](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_wifi.html#wi-fi) je ```esp_wifi.h```.
+Zaglavlje koje je potrebno uključiti za rad s [Wi-Fi operacijama (eng. GPIO API)](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_wifi.html#header-file) je ```esp_wifi.h```.
 
 ### Flash memorija za trajnu pohranu podataka
 
@@ -69,7 +69,7 @@ Kako bi inicijalizirali Wi-Fi stog potrebno je inicijalizirati [NVS (*eng. Non-V
 
 Podatci se u NVS particiju spremaju u obliku ključa i vrijednosti. Maksimalna veličina ključa je 15 ASCII znakova. Vrijednosti mogu biti cijeli brojevi, nizovi znakova i niz binarnih podataka (*blob*). Ključevi moraju biti jedinstveni iako postoje imenski prostori kako bi se donekle riješio problem s sukobljenim imenima.
 
-Zaglavlje koje je potrebno uključiti za rad s [NVS-om](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/storage/nvs_flash.html#api-reference) je ```nvs_flash.h```.
+Zaglavlje koje je potrebno uključiti za rad s [NVS-om](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/storage/nvs_flash.html#header-file) je ```nvs_flash.h```.
 
 #### Inicijalizacija uobičajene NVS particije
 ```
@@ -96,7 +96,7 @@ Funkcija vraća *ESP_OK* ako je deinicijalizacija NVS-a uspjela. Funkcija deinic
 
 [Petlja događaja (eng. event loop)](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/esp_event.html) omogućuje obradu asinkronih događaja. Primjerice, u slučaju nekog događaja pozvat će se *handler* funkcija odnosno funkcija za obradu događaja. Postoji uobičajena sustavska petlja događaja koja prati događaje u sustavu i korisnički definirana petlja događaja. Sustavska petlja događaja prati sustavske događaje, primjerice Wi-Fi događaje. Korisnici mogu registrirati više *handler* funkcija za obradu istog događaja u obje vrste petlji. Međutim, vrijedi pravilo da se *handler* funkcija ne smije odjaviti s događaja dok je petlja događaja aktivna osim ako *handler* sam sebe odjavljuje.
 
-Zaglavlje koje je potrebno uključiti za rad s [petljom događaja](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/esp_event.html#api-reference) je ```nvs_flash.h```.
+Zaglavlje koje je potrebno uključiti za rad s [petljom događaja](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/esp_event.html#header-file) je ```esp_event.h```.
 
 Za Wi-Fi je bitna sustavska petlja događaja pa će se priložene funkcije odnositi samo na nju.
 
@@ -174,7 +174,7 @@ Funkcija vraća *ESP_OK* ako je odjava uspjela.
 
 FreeRTOS grupa događaja je (*eng. FreeRTOS Event Group*) je mehanizam za sinkronizaciju i komunikaciju između različitih zadataka u sustavu. Koristi bit masku kao način pohrane stanja događaja. 
 
-Zaglavlje koje je potrebno uključiti za rad s [grupama događaja](https://docs.espressif.com/projects/esp-idf/en/v5.0/esp32/api-reference/system/freertos.html#event-group-api) je ```freertos/event_groups.h```.
+Zaglavlje koje je potrebno uključiti za rad s [grupama događaja](https://docs.espressif.com/projects/esp-idf/en/v5.0/esp32/api-reference/system/freertos.html#id12) je ```freertos/event_groups.h```.
 
 **Funkcije za rad se grupama događaja su atomarne.**
 
@@ -253,7 +253,7 @@ Kako bi aplikacija na ESP32 mikroupravljaču mogla komunicirati s drugim aplikac
 
 Neke funkcije TCP/IP stoga se zovu iz sloja aplikacije dok se neke funkcije zovu iz mrežnog sloja.
 
-Zaglavlje koje je potrebno uključiti za rad s [TCP/IP stogom](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_netif.html#api-reference) je ```esp_netif.h```.
+Zaglavlje koje je potrebno uključiti za rad s [TCP/IP stogom](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_netif.html#header-file) je ```esp_netif.h```.
 
 Zaglavlje nudi sučelja na funkcije koje:
 
@@ -271,7 +271,7 @@ Funkcija za rad s TCP/IP stogom ima mnogo. U nastavku su neke od bitnijih funkci
 
 #### Inicijalizacija i deinicijalizacija TCP/IP stoga
 
-Zaglavlje koje je potrebno za  inicijalizaciju i deinicijalizaciju [TCP/IP stoga](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_netif.html#api-reference) je ```esp_netif.h```.
+Zaglavlje koje je potrebno za inicijalizaciju i deinicijalizaciju [TCP/IP stoga](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_netif.html#header-file) je ```esp_netif.h```.
 
 ##### Inicijalizacija TCP/IP stoga
 ```
@@ -289,7 +289,7 @@ Funkcija vraća *ESP_ERR_INVALID_STATE* ako TCP/IP uopće nije inicijaliziran. U
 
 #### Stvaranje i brisanje instance mrežnog sučelja
 
-Zaglavlje koje je potrebno uključiti za [stvaranje i brisanje instance mrežnog sučelja (*eng. Wi-Fi Default API*)](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_netif.html#wi-fi-default-api-reference) je ```esp_wifi_default.h```.
+Zaglavlje koje je potrebno uključiti za [stvaranje i brisanje instance mrežnog sučelja (*eng. Wi-Fi Default API*)](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_netif.html#id20) je ```esp_wifi_default.h```.
 
 ##### Stvaranje mrežnog sučelja za korištenje u Wi-Fi STATION načinu rada
 ```
@@ -617,7 +617,7 @@ ESP32 mikroupravljač se najčešće konfigurira sljedeća dva načina:
 - AP (ACCESS POINT)
 	- na njega se spajaju STATION-i
 
-Zaglavlje koje je potrebno uključiti za rad s [Wi-Fiom](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_wifi.html#api-reference) je ```esp_wifi.h```.
+Zaglavlje koje je potrebno uključiti za rad s [Wi-Fiom](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_wifi.html#header-file) je ```esp_wifi.h```.
 
 Funkcija za rad s Wi-Fiom ima mnogo. U nastavku su neke od bitnijih funkcija potrebne za postavljanje mrežnog sučelja.
 

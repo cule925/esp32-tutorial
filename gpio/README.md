@@ -6,13 +6,13 @@ Neki GPIO pinovi se koriste kao *strapping* pinovi gdje se prilikom *boota* ESP3
 
 ## Uobičajeni GPIO
 
-Zaglavlje koje je potrebno uključiti za rad s osnovnim GPIO operacijama (*eng. GPIO API*) je ```driver/gpio.h```.
+Zaglavlje koje je potrebno uključiti za [rad s osnovnim GPIO operacijama (*eng. GPIO API*)](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/gpio.html#header-file) je ```driver/gpio.h```.
 
 Pinovi imaju makro definicije oblika ```GPIO_NUM_[Broj]``` čija je vrijednost jednaka stvarnom broju pina.
 
 ### Osnovne GPIO funkcije
 
-U nastavku su često korištene funkcije za upravljanje uobičajenim GPIO-ovima. Sve funkcije se nalaze [ovdje](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/gpio.html#api-reference-normal-gpio).
+U nastavku su često korištene funkcije za upravljanje uobičajenim GPIO-ovima.
 
 #### Potpuna konfiguracija GPIO pina
 ```

@@ -2,7 +2,7 @@
 #include "driver/gpio.h"                                                        // GPIO operations
 #include "freertos/FreeRTOS.h"                                                  // FreeRTOS kernel
 #include "freertos/task.h"                                                      // FreeRTOS task functions
-#include "freertos/semphr.h"                                                    // FreeRTOS semaphore and muitex operations
+#include "freertos/semphr.h"                                                    // FreeRTOS semaphore and mutex operations
 #include "esp_log.h"                                                            // Logging operations
 
 // Tag names

@@ -94,7 +94,7 @@ Tipično u aplikacijama koje se pokreću na ESP32 mikroupravljačima s dvije jez
 
 ### Zadatci
 
-Zaglavlje koje je potrebno uključiti za rad sa zadatcima (*eng. Task API*): ```freertos/task.h```.
+Zaglavlje koje je potrebno uključiti za [rad sa zadatcima (*eng. Task API*)](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/system/freertos_idf.html#header-file) je: ```freertos/task.h```.
 
 [Zadatak](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/system/freertos_idf.html#tasks) je sličan procesu ili dretvi, neovisni niz instrukcija koja se može pokrenuti, pauzirati ili zaustaviti. Primjer korištenja zadatka se može naći u direktoriju [*task-blink*](task-blink).
 
@@ -456,7 +456,7 @@ FreeRTOS nudi razne komunikacijske i sinkronizacijske mehanizme koji omogućuju 
 
 [Red (*eng. queue*)](https://freertos.org/Documentation/02-Kernel/02-Kernel-features/02-Queues-mutexes-and-semaphores/01-Queues) je osnovni način komunikacije između zadataka. Red ima određenu veličinu te su čitanje i pisanje dretveno sigurne (*thread safe*) operacije. Red najčešće koristi princip FIFO (*eng. First In First Out*) što znači se elementi stavljaju (pišu) u red na kraj, a uzimaju s početka (čitaju), iako je moguće staviti elemente odmah na početak. Operacije pisanja i čitanja u redu mogu biti blokirajuće i neblokirajuće.
 
-Zaglavlje koje je potrebno uključiti za rad s redovima (*eng. Queue API*) je ```freertos/queue.h```.
+Zaglavlje koje je potrebno uključiti za [rad s redovima (*eng. Queue API*)](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/system/freertos_idf.html#id1) je ```freertos/queue.h```.
 
 Primjer korištenja zadatka se može naći u direktoriju [*tasks-queue*](tasks-queue).
 
@@ -684,7 +684,7 @@ Postoje tri vrste resursa napravljena izričito za sinkronizaciju i pristupu kri
 
 Nepravilno korištenje semafora i monitora može dovesti do zastoja u radu sustava.
 
-Zaglavlje koje je potrebno uključiti za rad sa semaforima i monitorima (*eng. Semaphore API*) je ```freertos/semphr.h```.
+Zaglavlje koje je potrebno uključiti za [rad sa semaforima i monitorima (*eng. Semaphore API*)](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/system/freertos_idf.html#id5) je ```freertos/semphr.h```.
 
 ##### Binarni semafor
 

@@ -2,7 +2,7 @@
 #include "driver/gpio.h"                                                        // GPIO operations
 #include "freertos/FreeRTOS.h"                                                  // FreeRTOS kernel
 #include "freertos/task.h"                                                      // FreeRTOS task functions
-#include "freertos/semphr.h"                                                    // FreeRTOS semaphore and muitex operations
+#include "freertos/semphr.h"                                                    // FreeRTOS semaphore and mutex operations
 #include "esp_log.h"                                                            // Logging operations
 
 // Tag names
@@ -20,7 +20,7 @@
 #define BUTTON_1_PIN            GPIO_NUM_19
 #define BUTTON_2_PIN            GPIO_NUM_18
 
-// Semaphore info
+// Semaphore handles
 SemaphoreHandle_t xFirstSemaphore, xSecondSemaphore;
 
 // Debouncing protection
