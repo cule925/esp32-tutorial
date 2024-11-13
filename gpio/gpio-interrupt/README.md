@@ -1,4 +1,4 @@
-# TASKS-QUEUE
+# GPIO-INTERRUPT
 
 Aplikacija je napravljena za ESP32-DevKitM-1 jednojezgrenu pločicu.
 

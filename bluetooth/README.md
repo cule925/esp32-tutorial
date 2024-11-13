@@ -139,7 +139,7 @@ Parametri za spajanje:
 
 - *Connection Interval*
 	- signalizira spremnost komunikacije oba uređaja (i *mastera* i *slavea*)
-	- BLE uređaji rade skokove po kanalima (FHSS), kada uređaji razmjenjuju podatke u trenutnom kanalu, to se naziva događaj konekcije (eng. *connection event*)
+	- BLE uređaji rade skokove po kanalima (FHSS), kada uređaji razmjenjuju podatke u trenutačnom kanalu, to se naziva događaj konekcije (eng. *connection event*)
 	- uređaji ne moraju razmjenjivati podatke svaki put kad skoknu u novi kanal već mogu periodično napravit konekciju, ovaj period može biti od 7.5 ms do 4 s
 	- smanjenje ovog parametra povećava potrošnju, ali povećava i prijenos podataka
 	- dogovor između *mastera* i *slavea*
@@ -246,11 +246,13 @@ UUID servisi, karakteristike i opisnici se također mogu definirati kao 16 bitni
 
 U nastavku slijede bitne funkcije koje se koriste za GATT poslužitelj (službeni primjer ESP-IDF-a može se naći [ovdje](https://github.com/espressif/esp-idf/blob/v5.2.3/examples/bluetooth/bluedroid/ble/gatt_server/tutorial/Gatt_Server_Example_Walkthrough.md)). ESP32 će se konfigurirati kao **BLE periferija**.
 
+Primjer za GATT poslužitelj nalazi se [ovdje](ble_gatt_server).
+
 #### Flash memorija za trajnu pohranu podataka
 
 Bluetooth sprema neke svoje podatke u [NVS (*eng. Non-Volatile Storage*) particiju](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/storage/nvs_flash.html) koja se nalazi u Flash memoriji. Podatci se u NVS particiju spremaju u obliku ključa i vrijednosti.
 
-Zaglavlje koje je potrebno uključiti za rad s [NVS-om](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/storage/nvs_flash.html#api-reference) je ```nvs_flash.h```.
+Zaglavlje koje je potrebno uključiti za rad s [NVS-om](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/storage/nvs_flash.html#header-file) je ```nvs_flash.h```.
 
 ##### Inicijaliziraj uobičajenu NVS particiju
 ```
@@ -275,7 +277,7 @@ Funkcija vraća *ESP_OK* ako je deinicijalizacija NVS-a uspjela. Funkcija deinic
 
 #### Upravljanje Bluetooth upravljačkim sklopom i virtualnim HCI-om
 
-Kako bi mogli upravljati [Bluetooth sklopom i virtualnim HCI-om]((https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/bluetooth/controller_vhci.html#api-reference)), potrebno je uključiti zaglavlje ```esp_bt.h```.
+Kako bi mogli upravljati [Bluetooth sklopom i virtualnim HCI-om](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/bluetooth/controller_vhci.html#header-file), potrebno je uključiti zaglavlje ```esp_bt.h```.
 
 ##### Oslobodi memoriju Bluetooth sklopa
 ```
@@ -353,7 +355,7 @@ Funkcija vraća enumerator koji može imati vrijednosti:
 
 #### Upravljanje Bluedroid host stogom Bluetootha
 
-Za upravljanje [Bluedroid host stogom](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_bt_main.html#api-reference), potrebno je uključiti zaglavlje ```esp_bt_main.h```.
+Za upravljanje [Bluedroid host stogom](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_bt_main.html#header-file), potrebno je uključiti zaglavlje ```esp_bt_main.h```.
 
 ##### Inicijaliziraj Bluedroid host stog
 ```
@@ -395,7 +397,7 @@ Funkcija vraća enumerator koji može imati vrijednosti:
 
 #### GAP funkcionalnost
 
-Kako bi upravljali [GAP funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gap_ble.html#api-reference), potrebno je uključiti zaglavlje ```esp_gap_ble_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
+Kako bi upravljali [GAP funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gap_ble.html#header-file), potrebno je uključiti zaglavlje ```esp_gap_ble_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
 
 ##### Registriraj callback (handler) funkcije za GAP događaj
 ```
@@ -568,9 +570,9 @@ Struktura *esp_ble_adv_params_t* sastoji se od sljedećih članova:
 - *adv_filter_policy*
 	- podatak tipa *esp_ble_adv_filter_t* koji definira koji drugi uređaj smije skenirati i povezati se na ovaj uređaj, enumeratori:
 		- *ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY* - bilo koji uređaj
-		- *ADV_FILTER_ALLOW_SCAN_WLST_CON_ANY* - samo uređaji s liste odobrenih uređaja (*eng. whitelist*) mogu skenirati i otkriti trenutni uređaj, ali bilo koji uređaji se mogu povezati na trenutni uređaj
-		- *ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST* - bilo koji uređaji mogu skenirati i otkriti trenutni uređaj, ali samo uređaji s liste odobrenih uređaja se mogu povezati na trenutni uređaj
-		- *ADV_FILTER_ALLOW_SCAN_WLST_CON_WLST* - samo uređaji s liste odobrenih uređaja mogu skenirati, otkriti i povezati se na trenutni uređaj
+		- *ADV_FILTER_ALLOW_SCAN_WLST_CON_ANY* - samo uređaji s liste odobrenih uređaja (*eng. whitelist*) mogu skenirati i otkriti trenutačni uređaj, ali bilo koji uređaji se mogu povezati na trenutačni uređaj
+		- *ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST* - bilo koji uređaji mogu skenirati i otkriti trenutačni uređaj, ali samo uređaji s liste odobrenih uređaja se mogu povezati na trenutačni uređaj
+		- *ADV_FILTER_ALLOW_SCAN_WLST_CON_WLST* - samo uređaji s liste odobrenih uređaja mogu skenirati, otkriti i povezati se na trenutačni uređaj
 
 ##### Zaustavi oglašavanje
 ```
@@ -593,7 +595,7 @@ Funkcija vraća *ESP_OK* kada ako je uspješno postavljena veličina MTU paketa.
 
 #### GATT poslužitelj funkcionalnost
 
-Kako bi upravljali [GATT poslužitelj funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gatts.html#api-reference), potrebno je uključiti zaglavlje ```esp_gatts_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
+Kako bi upravljali [GATT poslužitelj funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gatts.html#header-file), potrebno je uključiti zaglavlje ```esp_gatts_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
 
 ##### Registriraj callback (handler) funkciju za GATT događaj
 ```
@@ -745,7 +747,7 @@ Parametri ove funkcije su:
 - *char_val*
 	- struktura koja definira početnu vrijednost karakteristike, sastoji se od sljedećih članova:
 		- *attr_max_len* - maksimalna duljina vrijednost karakteristike
-		- *attr_len* - trenutna duljina vrijednosti karakteristike
+		- *attr_len* - trenutačna duljina vrijednosti karakteristike
 		- *attr_value* - pokazivač na početnu vrijednost karakteristike
 - *control*
 	- dodatne kontrole pristupa, najčešće NULL
@@ -770,7 +772,7 @@ Parametri ove funkcije su:
 - *char_descr_val*
 	- struktura koja definira početnu vrijednost opisnika karakteristike, sastoji se od sljedećih članova:
 		- *attr_max_len* - maksimalna duljina vrijednost karakteristike
-		- *attr_len* - trenutna duljina vrijednosti karakteristike
+		- *attr_len* - trenutačna duljina vrijednosti karakteristike
 		- *attr_value* - pokazivač na početnu vrijednost karakteristike
 - *control*
 	- dodatne kontrole pristupa, najčešće NULL
@@ -778,7 +780,6 @@ Parametri ove funkcije su:
 Funkcija vraća *ESP_OK* kada je opisnik karakteristike uspješno dodan. Nakon dodavanja opisnika karakteristike karakteristici dogodit će se događaj *ESP_GATTS_ADD_DESCR_EVT*.
 
 ##### Šalji odgovor na zahtjev
-
 ```
 esp_err_t esp_ble_gatts_send_response(esp_gatt_if_t gatts_if, uint16_t conn_id, uint32_t trans_id, esp_gatt_status_t status, esp_gatt_rsp_t *rsp)
 ```
@@ -799,7 +800,7 @@ Parametri ove funkcije su:
 		- *attr_value*
 			- struktura tipa *esp_attr_value_t* koja definira početnu vrijednost karakteristike, sastoji se od sljedećih članova:
 				- *attr_max_len* - maksimalna duljina vrijednost karakteristike
-				- *attr_len* - trenutna duljina vrijednosti karakteristike
+				- *attr_len* - trenutačna duljina vrijednosti karakteristike
 				- *attr_value* - vrijednost karakteristike
 		- *handle*
 			- handle karakteristike
@@ -812,9 +813,11 @@ U nastavku slijede bitne funkcije koje se koriste za GATT klijent (službeni pri
 
 Funkcije za upravljanje Flash memorijom, upravljanje Bluetooth upravljačkim sklopom i virtualnim HCI-om te upravljanje Bluedroid host stogom Bluetootha su iste kao i za GATT poslužitelj. Funkcije za GAP i GATT funkcionalnosti su drugačije.
 
+Primjer za GATT klijent nalazi se [ovdje](ble_gatt_client).
+
 #### GAP funkcionalnost
 
-Kako bi upravljali [GAP funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gap_ble.html#api-reference), potrebno je uključiti zaglavlje ```esp_gap_ble_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
+Kako bi upravljali [GAP funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gap_ble.html#header-file), potrebno je uključiti zaglavlje ```esp_gap_ble_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
 
 ##### Registriraj callback (handler) funkciju za GAP događaj
 ```
@@ -903,6 +906,46 @@ Struktura *esp_ble_scan_params_t* sastoji se od sljedećih članova:
 		- *BLE_SCAN_DUPLICATE_ENABLE_RESET* - omogući s resetiranjem u svakom intervalu skeniranja (samo od BLE 5.0)
 		- *BLE_SCAN_DUPLICATE_MAX* - rezervirano
 
+##### Izvuci podatak za specifični atribut iz dohvaćenih podataka oglašavanja
+```
+uint8_t *esp_ble_resolve_adv_data_by_type(uint8_t *adv_data, uint16_t adv_data_len, esp_ble_adv_data_type type, uint8_t *length)
+```
+
+Parametri ove funkcije su:
+
+- *adv_data*
+	- pokazivač na podatke oglašavanja
+- *adv_data_len*
+	- veličina podataka oglašavanja koja se treba obraditi
+- *type*
+	- tip podatka oglašavanja, enumerator može imati primjerice sljedeće vrijednosti:
+		- *ESP_BLE_AD_TYPE_16SRV_CMPL* - potpuni 16 bitni UUID
+		- *ESP_BLE_AD_TYPE_32SRV_CMPL* - potpuni 32 bitni UUID
+		- *ESP_BLE_AD_TYPE_128SRV_CMPL* - potpuni 128 bitni UUID
+		- *ESP_BLE_AD_TYPE_NAME_CMPL* - potpuno ime uređaja
+		- *ESP_BLE_AD_TYPE_TX_PWR* - snaga odašiljanja
+		- ...
+- *length*
+	- mjesto u kojem će se spremiti veličina izvučenih podataka
+
+Funkcija vraća pokazivač na podatak oglašavanja koji je tražen.
+
+Postoji i druga starija funkcija za izvlačenje specifičnih atributa iz dohvaćenih podataka oglašavanja:
+```
+uint8_t *esp_ble_resolve_adv_data(uint8_t *adv_data, uint8_t type, uint8_t *length)
+```
+
+Parametri ove funkcije su:
+
+- *adv_data*
+	- pokazivač na podatke oglašavanja
+- *type*
+	- tip podatka oglašavanja, može se poslati i enumerator *esp_ble_adv_data_type* naveden u prethodnom primjeru
+- *length*
+	- mjesto u kojem će se spremiti veličina izvučenih podataka
+
+Funkcija vraća pokazivač na podatak oglašavanja koji je tražen.
+
 ##### Postavi veličinu MTU paketa
 ```
 esp_err_t esp_ble_gatt_set_local_mtu(uint16_t mtu)
@@ -917,7 +960,7 @@ Funkcija vraća *ESP_OK* kada ako je uspješno postavljena veličina MTU paketa.
 
 #### GATT klijent funkcionalnost
 
-Kako bi upravljali [GATT klijent funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gattc.html#api-reference), potrebno je uključiti zaglavlje ```esp_gattc_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
+Kako bi upravljali [GATT klijent funkcionalnostima](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/bluetooth/esp_gattc.html#header-file), potrebno je uključiti zaglavlje ```esp_gattc_api.h```. GAP funkcionalnostima se može samo upravljati kada je Bluetooth postavljen u *ESP_BT_MODE_BLE* ili *ESP_BT_MODE_BTDM* načinu rada.
 
 ##### Registriraj callback (handler) funkciju za GATT događaj
 ```

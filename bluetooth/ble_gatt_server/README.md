@@ -22,18 +22,20 @@ Potrebno je na GPIO pin 22 postaviti svjetleću diodu (*eng. LED*) i otpornik (1
                                +----------------+
 ```
 
+**Aplikaciju je najbolje koristiti s već implementiranim GATT klijentom čija se aplikacija nalazi [ovdje](../ble_gatt_client/).**
+
 Aplikacija radi sljedeće:
 
 - postavlja GPIO pin 22 na kojem je spojen svjetleća dioda kao ulazno-izlazni što znači da mu se može postaviti stanje i u isto vrijeme čitati s njega
-- inicijalizira Bluetooth sklop u BLE načinu rada i inicijalizirra Bluedroid Bluetooth stog
+- inicijalizira Bluetooth sklop u BLE načinu rada i inicijalizira Bluedroid Bluetooth stog
 - postavlja GAP parametre za oglašavanje
 - inicijalizira uređaj kao GATT poslužitelj i postavlja profil, servis i karakteristiku
-- ponaša se kao Bluetooth periferija i oglašavat će svoje GATT servise dok se na njega ne spoji neki Bluetooth centralni uređaj, a u slučaju da se centralni uređaj odspoji ponovno započinje oglašavanje
-- prima zahtjeve za pisanje od GATT klijenta, uređaj postavlja LED-icu u stanje zahtjevano zahtjevom
-- prima zahtjeve za čitanje od GATT klijenta, uređaj kao odgovor na zahtjev šalje trenutno stanje razine LED-ice
+- ponaša se kao Bluetooth periferija i oglašavat će svoje GATT servise dok se na njega ne spoji neki Bluetooth centralni uređaj, a u slučaju da se dogodi prekid veze ponovno započinje oglašavanje
+- prima zahtjeve za pisanje od GATT klijenta, uređaj postavlja LED-icu u stanje zahtijevano zahtjevom
+- prima zahtjeve za čitanje od GATT klijenta, uređaj kao odgovor na zahtjev šalje trenutačno stanje razine LED-ice
 - ispisuje logove na serijski monitor (kombinacija tipki *CTRL + ]* je za izlaz iz serijskog monitora)
 
-Organizacija podataka za trenutni uređaj odnosno GATT poslužitelj je sljedeća:
+Organizacija podataka za trenutačni uređaj odnosno GATT poslužitelj je sljedeća:
 
 ```
         +-------------------------------+
