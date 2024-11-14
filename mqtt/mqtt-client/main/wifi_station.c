@@ -11,16 +11,13 @@
 #include "esp_log.h"                                                            // Logging operations
 #include "esp_err.h"                                                            // For error codes and macro ESP_ERROR_CHECK(...)
 
+#include "config.h"
+#include "wifi_station.h"
+
 // Tag names
-#define MAIN_TAG                            "main_task"
+#define WIFI_TAG                            "wifi_task"
 #define WIFI_EVENT_TAG                      "wifi_event_handler"
 #define IP_EVENT_TAG                        "ip_event_handler"
-
-// Network info
-#define ESP_WIFI_SSID               "[PLACEHOLDER]"
-#define ESP_WIFI_PASS               "[PLACEHOLDER]"
-#define ESP_WIFI_HOSTNAME           "[PLACEHOLDER]"
-#define ESP_WIFI_RETRY_NUM          5
 
 // Masks for event group bits
 #define WIFI_CONNECTED_BIT          BIT0
@@ -44,7 +41,7 @@ static void wifi_init_station(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 
     // Initializing and allocating resources for Wi-Fi driver
-    ESP_LOGI(MAIN_TAG, "Initializing and allocating resources for Wi-Fi driver");
+    ESP_LOGI(WIFI_TAG, "Initializing and allocating resources for Wi-Fi driver");
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
     // Wi-Fi network driver
@@ -60,27 +57,27 @@ static void wifi_init_station(void)
 
     // Settinng Wi-Fi mode station
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_LOGI(MAIN_TAG, "Settinng Wi-Fi mode station");
+    ESP_LOGI(WIFI_TAG, "Settinng Wi-Fi mode station");
 
     // Applying the Wi-Fi station network configuration
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
-    ESP_LOGI(MAIN_TAG, "Applying Wi-Fi configuration");
+    ESP_LOGI(WIFI_TAG, "Applying Wi-Fi configuration");
 
     // Starting Wi-Fi station
-    ESP_LOGI(MAIN_TAG, "Starting Wi-Fi");
+    ESP_LOGI(WIFI_TAG, "Starting Wi-Fi");
     ESP_ERROR_CHECK(esp_wifi_start());
 
     // Wait until Wi-Fi station is connected
-    ESP_LOGI(MAIN_TAG, "Waiting for network connection");
+    ESP_LOGI(WIFI_TAG, "Waiting for network connection");
     EventBits_t event_bits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
     // Report what happened
     if (event_bits & WIFI_CONNECTED_BIT) {
-        ESP_LOGI(MAIN_TAG, "Connected to an access point with SSID: %s, password: %s", ESP_WIFI_SSID, ESP_WIFI_PASS);
+        ESP_LOGI(WIFI_TAG, "Connected to an access point with SSID: %s, password: %s", ESP_WIFI_SSID, ESP_WIFI_PASS);
     } else if (event_bits & WIFI_FAIL_BIT) {
-        ESP_LOGI(MAIN_TAG, "Failed to connect to an access point with SSID: %s, password: %s", ESP_WIFI_SSID, ESP_WIFI_PASS);
+        ESP_LOGI(WIFI_TAG, "Failed to connect to an access point with SSID: %s, password: %s", ESP_WIFI_SSID, ESP_WIFI_PASS);
     } else {
-        ESP_LOGE(MAIN_TAG, "Unexpected event!");
+        ESP_LOGE(WIFI_TAG, "Unexpected event!");
     }
 }
 
@@ -88,15 +85,15 @@ static void wifi_init_station(void)
 static void network_interface_init() {
 
     // Initializing TCP/IP network stack
-    ESP_LOGI(MAIN_TAG, "Initializing TCP/IP network stack");
+    ESP_LOGI(WIFI_TAG, "Initializing TCP/IP network stack");
     ESP_ERROR_CHECK(esp_netif_init());
 
     // Creating a default station network interface
-    ESP_LOGI(MAIN_TAG, "Creating default station network interface");
+    ESP_LOGI(WIFI_TAG, "Creating default station network interface");
     esp_netif_t *netif = esp_netif_create_default_wifi_sta();
 
     // Set hostname of network interface
-    ESP_LOGI(MAIN_TAG, "Setting hostname " ESP_WIFI_HOSTNAME);
+    ESP_LOGI(WIFI_TAG, "Setting hostname " ESP_WIFI_HOSTNAME);
     esp_netif_set_hostname(netif, ESP_WIFI_HOSTNAME);
 
 }
@@ -157,15 +154,15 @@ static void event_handler_ip(void* arg, esp_event_base_t event_base, int32_t eve
 static void event_handlers_init() {
 
     // Create system event loop
-    ESP_LOGI(MAIN_TAG, "Creating system event loop");
+    ESP_LOGI(WIFI_TAG, "Creating system event loop");
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     // Register Wi-Fi event handler instance
-    ESP_LOGI(MAIN_TAG, "Registering Wi-Fi event handler instance");
+    ESP_LOGI(WIFI_TAG, "Registering Wi-Fi event handler instance");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler_wifi, NULL, &event_handler_instance_wifi));
 
     // Register IP event handler instance
-    ESP_LOGI(MAIN_TAG, "Registering IP event handler instance");
+    ESP_LOGI(WIFI_TAG, "Registering IP event handler instance");
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler_ip, NULL, &event_handler_instance_ip));
 
 }
@@ -186,9 +183,9 @@ static void nvs_init() {
 
     // If no more space delete contents of NVS partition
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_LOGE(MAIN_TAG, "No space or new version detected, cleaning up default NVS partition");
+        ESP_LOGE(WIFI_TAG, "No space or new version detected, cleaning up default NVS partition");
         ESP_ERROR_CHECK(nvs_flash_erase());
-        ESP_LOGI(MAIN_TAG, "Initializing default NVS partition again");
+        ESP_LOGI(WIFI_TAG, "Initializing default NVS partition again");
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
@@ -196,26 +193,26 @@ static void nvs_init() {
 }
 
 // Entrypoint
-void app_main(void) {
+void wifi_init(void) {
 
     // Initialize default NVS partition
-    ESP_LOGI(MAIN_TAG, "Initializing default NVS partition");
+    ESP_LOGI(WIFI_TAG, "Initializing default NVS partition");
     nvs_init();
 
     // Initialize event group handler
-    ESP_LOGI(MAIN_TAG, "Initializing event group handler");
+    ESP_LOGI(WIFI_TAG, "Initializing event group handler");
     event_group_handler_init();
 
     // Initialize event handlers
-    ESP_LOGI(MAIN_TAG, "Initializing event handlers");
+    ESP_LOGI(WIFI_TAG, "Initializing event handlers");
     event_handlers_init();
 
     // Initialize network interface
-    ESP_LOGI(MAIN_TAG, "Initializing network interface");
+    ESP_LOGI(WIFI_TAG, "Initializing network interface");
     network_interface_init();
 
     // Initialize Wi-Fi station
-    ESP_LOGI(MAIN_TAG, "Initializing Wi-Fi station");
+    ESP_LOGI(WIFI_TAG, "Initializing Wi-Fi station");
     wifi_init_station();
 
 }

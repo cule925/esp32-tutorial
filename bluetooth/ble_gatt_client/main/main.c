@@ -44,10 +44,10 @@
 #define LED_REMOTE_GET_INTERVAL     1000 
 
 // GATT client profile event handler declaration
-void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
+static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param);
 
 // GAP target peripheral UUID that is being advertised, this central device will connect to the peripheral device that is advertising
-uint8_t adv_service_uuid128[16] = {
+static uint8_t adv_service_uuid128[16] = {
     0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA,
     0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
 };
@@ -63,57 +63,57 @@ static esp_ble_scan_params_t ble_scan_params = {
 };
 
 // Flags
-bool connected = false;                                                 // If GATT client is connected to the GATT server
-bool got_service = false;                                               // If GATT client got the services of the GATT server
-bool got_characteristic = false;                                        // If GATT client got the target characteristic of the GATT server
+static bool connected = false;                                                  // If GATT client is connected to the GATT server
+static bool got_service = false;                                                // If GATT client got the services of the GATT server
+static bool got_characteristic = false;                                         // If GATT client got the target characteristic of the GATT server
 
 // GATT client profile information
-uint16_t profile_gattc_if = ESP_GATT_IF_NONE;                           // GATT client profile interface, initialize it to none
-esp_gattc_cb_t profile_event_handler = gattc_profile_event_handler;     // GATT client profile callback, initialize it to the handler
+static uint16_t profile_gattc_if = ESP_GATT_IF_NONE;                            // GATT client profile interface, initialize it to none
+static esp_gattc_cb_t profile_event_handler = gattc_profile_event_handler;      // GATT client profile callback, initialize it to the handler
 
 // GATT client connection information
-uint16_t conn_id;                                                       // GATT client connection ID
+static uint16_t conn_id;                                                        // GATT client connection ID
 
 // GATT client service information
-uint16_t service_start_handle;                                          // GATT client first service handle
-uint16_t service_end_handle;                                            // GATT client last service handle
+static uint16_t service_start_handle;                                           // GATT client first service handle
+static uint16_t service_end_handle;                                             // GATT client last service handle
 
 // GATT client LED ON/OFF characteristic information
-uint16_t char_led_handle;                                                                                           // Characteristic handler
-esp_gatt_char_prop_t char_led_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE;                // Characteristic property
+static uint16_t char_led_handle;                                                                                            // Characteristic handler
+static esp_gatt_char_prop_t char_led_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE;                 // Characteristic property
 
 // Peripheral Bluetooth address
-esp_bd_addr_t remote_bda;
+static esp_bd_addr_t remote_bda;
 
 // UUID for filtering service
-esp_bt_uuid_t remote_filter_service_uuid = {
+static esp_bt_uuid_t remote_filter_service_uuid = {
     .len = ESP_UUID_LEN_16,
     .uuid = {.uuid16 = GATTS_SERVICE_UUID,},
 };
 
 // UUID for filtering characteristic
-esp_bt_uuid_t remote_filter_char_uuid = {
+static esp_bt_uuid_t remote_filter_char_uuid = {
     .len = ESP_UUID_LEN_16,
     .uuid = {.uuid16 = GATTS_CHAR_LED_UUID,},
 };
 
 // LED current local level
-uint8_t local_led_level = 0;
+static uint8_t local_led_level = 0;
 
 // Task remote set state info
-TaskHandle_t xTaskHandleRemoteSet = NULL;                                                   // Handle of the task
-char* pcTaskNameRemoteSet = "R_SET";                                                        // Name of the task (maximum size is 16 characters)
-UBaseType_t uxTaskPriorityRemoteSet = tskIDLE_PRIORITY + 1;                                 // Task priority (same as task main)
-const configSTACK_DEPTH_TYPE usTaskStackDepthRemoteSet = configMINIMAL_STACK_SIZE * 8;      // Task stack size
+static TaskHandle_t xTaskHandleRemoteSet = NULL;                                                    // Handle of the task
+static char* pcTaskNameRemoteSet = "R_SET";                                                         // Name of the task (maximum size is 16 characters)
+static UBaseType_t uxTaskPriorityRemoteSet = tskIDLE_PRIORITY + 1;                                  // Task priority (same as task main)
+static const configSTACK_DEPTH_TYPE usTaskStackDepthRemoteSet = configMINIMAL_STACK_SIZE * 8;       // Task stack size
 
 // Task remote get state info
-TaskHandle_t xTaskHandleRemoteGet = NULL;                                                   // Handle of the task
-char* pcTaskNameRemoteGet = "R_GET";                                                        // Name of the task (maximum size is 16 characters)
-UBaseType_t uxTaskPriorityRemoteGet = tskIDLE_PRIORITY + 1;                                 // Task priority (same as task main)
-const configSTACK_DEPTH_TYPE usTaskStackDepthRemoteGet = configMINIMAL_STACK_SIZE * 8;      // Task stack size
+static TaskHandle_t xTaskHandleRemoteGet = NULL;                                                    // Handle of the task
+static char* pcTaskNameRemoteGet = "R_GET";                                                         // Name of the task (maximum size is 16 characters)
+static UBaseType_t uxTaskPriorityRemoteGet = tskIDLE_PRIORITY + 1;                                  // Task priority (same as task main)
+static const configSTACK_DEPTH_TYPE usTaskStackDepthRemoteGet = configMINIMAL_STACK_SIZE * 8;       // Task stack size
 
 // Extract characteristic from service
-void extract_characteristic(esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
+static void extract_characteristic(esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
 
     // If discovered services from remote devices or if discovered from NVS flash
     if (param->search_cmpl.searched_service_source == ESP_GATT_SERVICE_FROM_REMOTE_DEVICE) ESP_LOGI(EVENT_HANDLER_GATTC_TAG, "SEARCH_CMPL_EVT, get service information from remote device");
@@ -166,7 +166,7 @@ void extract_characteristic(esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *pa
 }
 
 // GATT client profile event handler
-void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
+static void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
 
     // Handle event
     switch (event) {
@@ -191,19 +191,6 @@ void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc
             if (scan_ret) ESP_LOGE(EVENT_HANDLER_GATTC_TAG, "REG_EVT, set scan params error, error code = %x", scan_ret);
             break;
 
-        // Set the connection id, copy the remote Bluetooth and negotiate the MTU packet size when connect event
-        case ESP_GATTC_CONNECT_EVT:
-            ESP_LOGI(EVENT_HANDLER_GATTC_TAG, "CONNECT_EVT, conn_id %d, gattc_if %d", param->connect.conn_id, gattc_if);
-            conn_id = param->connect.conn_id;
-
-            memcpy(remote_bda, param->connect.remote_bda, sizeof(esp_bd_addr_t));
-            ESP_LOGI(EVENT_HANDLER_GATTC_TAG, "CONNECT_EVT, remote BDA:");
-            esp_log_buffer_hex(EVENT_HANDLER_GATTC_TAG, remote_bda, sizeof(esp_bd_addr_t));
-            
-            esp_err_t mtu_ret = esp_ble_gattc_send_mtu_req (gattc_if, param->connect.conn_id);
-            if (mtu_ret) ESP_LOGE(EVENT_HANDLER_GATTC_TAG, "CONNECT_EVT, config MTU error, error code = %x", mtu_ret);
-            break;
-
         // When open event
         case ESP_GATTC_OPEN_EVT:
             if (param->open.status != ESP_GATT_OK) ESP_LOGE(EVENT_HANDLER_GATTC_TAG, "OPEN_EVT, open failed, status %d", param->open.status);
@@ -218,12 +205,6 @@ void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc
                 ESP_LOGI(EVENT_HANDLER_GATTC_TAG, "DIS_SRVC_CMPL_EVT, discover service complete conn_id %d", param->dis_srvc_cmpl.conn_id);
                 esp_ble_gattc_search_service(gattc_if, param->dis_srvc_cmpl.conn_id, &remote_filter_service_uuid);
             }
-            break;
-
-        // When configure MTU event
-        case ESP_GATTC_CFG_MTU_EVT:
-            if (param->cfg_mtu.status != ESP_GATT_OK) ESP_LOGE(EVENT_HANDLER_GATTC_TAG,"CFG_MTU_EVT, config mtu failed, error code = %x", param->cfg_mtu.status);
-            else ESP_LOGI(EVENT_HANDLER_GATTC_TAG, "CFG_MTU_EVT, status %d, MTU %d, conn_id %d", param->cfg_mtu.status, param->cfg_mtu.mtu, param->cfg_mtu.conn_id);
             break;
 
         // Set the service flag, start handle and stop flag when search result event (a service discovered)
@@ -256,6 +237,19 @@ void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc
             esp_log_buffer_hex(EVENT_HANDLER_GATTC_TAG, bda, sizeof(esp_bd_addr_t));
             break;
 
+        // Set the connection id, copy the remote Bluetooth and negotiate the MTU packet size when connect event
+        case ESP_GATTC_CONNECT_EVT:
+            ESP_LOGI(EVENT_HANDLER_GATTC_TAG, "CONNECT_EVT, conn_id %d, gattc_if %d", param->connect.conn_id, gattc_if);
+            conn_id = param->connect.conn_id;
+
+            memcpy(remote_bda, param->connect.remote_bda, sizeof(esp_bd_addr_t));
+            ESP_LOGI(EVENT_HANDLER_GATTC_TAG, "CONNECT_EVT, remote BDA:");
+            esp_log_buffer_hex(EVENT_HANDLER_GATTC_TAG, remote_bda, sizeof(esp_bd_addr_t));
+            
+            esp_err_t mtu_ret = esp_ble_gattc_send_mtu_req (gattc_if, param->connect.conn_id);
+            if (mtu_ret) ESP_LOGE(EVENT_HANDLER_GATTC_TAG, "CONNECT_EVT, config MTU error, error code = %x", mtu_ret);
+            break;
+
         // When diconnect event occurs
         case ESP_GATTC_DISCONNECT_EVT:
             connected = false;                  // Unset the connect flag
@@ -265,6 +259,34 @@ void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc
             esp_ble_gap_start_scanning(SCAN_DURATION);
             break;
 
+        // When configure MTU event
+        case ESP_GATTC_CFG_MTU_EVT:
+            if (param->cfg_mtu.status != ESP_GATT_OK) ESP_LOGE(EVENT_HANDLER_GATTC_TAG,"CFG_MTU_EVT, config mtu failed, error code = %x", param->cfg_mtu.status);
+            else ESP_LOGI(EVENT_HANDLER_GATTC_TAG, "CFG_MTU_EVT, status %d, MTU %d, conn_id %d", param->cfg_mtu.status, param->cfg_mtu.mtu, param->cfg_mtu.conn_id);
+            break;
+
+        // In case of other events
+        /*
+        case ESP_GATTC_REG_EVT:
+        case ESP_GATTC_CLOSE_EVT:
+        case ESP_GATTC_READ_DESCR_EVT:
+        case ESP_GATTS_ADD_CHAR_DESCR_EVT:
+        case ESP_GATTC_WRITE_DESCR_EVT:
+        case ESP_GATTC_NOTIFY_EVT:
+        case ESP_GATTC_PREP_WRITE_EVT:
+        case ESP_GATTC_EXEC_EVT:
+        case ESP_GATTC_ACL_EVT:
+        case ESP_GATTC_CANCEL_OPEN_EVT:
+        case ESP_GATTC_ENC_CMPL_CB_EVT:
+        case ESP_GATTS_LISTEN_EVT:
+        case ESP_GATTS_CONGEST_EVT:
+        case ESP_GATTS_RESPONSE_EVT:
+        case ESP_GATTS_CREAT_ATTR_TAB_EVT:
+        case ESP_GATTS_SET_ATTR_VAL_EVT:
+        case ESP_GATTS_SEND_SERVICE_CHANGE_EVT:
+        ...
+        */
+
         default:
             break;
 
@@ -273,7 +295,7 @@ void gattc_profile_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc
 }
 
 // GATT client event handler
-void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
+static void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
 
     // If event is a register application id event
     if (event == ESP_GATTC_REG_EVT) {
@@ -298,7 +320,7 @@ void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp
 }
 
 // Resolve scan results
-void scan_result_handler(esp_ble_gap_cb_param_t *param) {
+static void scan_result_handler(esp_ble_gap_cb_param_t *param) {
 
     // Pointer to advertising data
     uint8_t *adv_uuid = NULL;
@@ -354,7 +376,7 @@ void scan_result_handler(esp_ble_gap_cb_param_t *param) {
 }
 
 // GAP event handler
-void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
+static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
 
     // Handle event
     switch (event) {
@@ -410,7 +432,7 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 }
 
 // Setup GATT client
-esp_err_t gattc_setup() {
+static esp_err_t gattc_setup() {
 
     // Register GATT client callback function
     esp_err_t ret = esp_ble_gattc_register_callback(gattc_event_handler);
@@ -435,7 +457,7 @@ esp_err_t gattc_setup() {
 }
 
 // Setup GAP
-esp_err_t gap_setup() {
+static esp_err_t gap_setup() {
 
     // Register GAP callback function
     esp_err_t ret = esp_ble_gap_register_callback(gap_event_handler);
@@ -449,7 +471,7 @@ esp_err_t gap_setup() {
 }
 
 // Setup Bluedroid Bluetooth host stack
-esp_err_t bluedroid_stack_setup() {
+static esp_err_t bluedroid_stack_setup() {
 
     // Initial error value
     esp_err_t ret = ESP_OK;
@@ -473,7 +495,7 @@ esp_err_t bluedroid_stack_setup() {
 }
 
 // Setup BLE controller
-esp_err_t ble_controller_setup() {
+static esp_err_t ble_controller_setup() {
 
     // Initial error value
     esp_err_t ret = ESP_OK;
@@ -501,7 +523,7 @@ esp_err_t ble_controller_setup() {
 }
 
 // Initialize default NVS partition
-esp_err_t nvs_init() {
+static esp_err_t nvs_init() {
 
     // Initialize default NVS partition
     esp_err_t ret = nvs_flash_init();
@@ -522,7 +544,7 @@ esp_err_t nvs_init() {
 }
 
 // Remote read
-void remoteRead() {
+static void remoteRead() {
 
     // Read from characteristic from GATT server, result will be in the handler function as a parameter
     esp_err_t ret = esp_ble_gattc_read_char(profile_gattc_if, conn_id, char_led_handle, ESP_GATT_AUTH_REQ_NONE);
@@ -531,7 +553,7 @@ void remoteRead() {
 }
 
 // Remote set task
-void taskRemoteGet(void *argument) {
+static void taskRemoteGet(void *argument) {
 
     // The delay
     TickType_t remoteGetDelay = LED_REMOTE_GET_INTERVAL / portTICK_PERIOD_MS;
@@ -547,7 +569,7 @@ void taskRemoteGet(void *argument) {
 }
 
 // Remote write
-void remoteWrite(uint32_t level) {
+static void remoteWrite(uint32_t level) {
 
     // Write characteristic to GATT server
     local_led_level = (uint8_t)level;
@@ -557,7 +579,7 @@ void remoteWrite(uint32_t level) {
 }
 
 // Remote get task
-void taskRemoteSet(void *argument) {
+static void taskRemoteSet(void *argument) {
 
     // The delays
     TickType_t led_on_interval_1 = LED_ON_INTERVAL_1 / portTICK_PERIOD_MS;
@@ -593,11 +615,11 @@ void taskRemoteSet(void *argument) {
 }
 
 // Setup LED GPIO
-void gpio_led_setup() {
+static void gpio_led_setup() {
 
     // LED setup
     gpio_reset_pin(LED_PIN);                                    // Reset pin to default state
-    gpio_set_direction(LED_PIN, GPIO_MODE_INPUT_OUTPUT);        // Set pin input-output mode (so both get and set are possible)
+    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);              // Set pin input-output mode (so both get and set are possible)
     gpio_set_level(LED_PIN, LED_OFF);                           // Set pin level to 0
 
 }

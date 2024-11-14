@@ -4,6 +4,8 @@ Aplikacija je napravljena za ESP32-DevKitM-1 jednojezgrenu pločicu.
 
 Nije potrebno spajati nikakve dodatne komponente na pločicu.
 
+Prije prevođenja, potrebno je urediti datoteku *main.c* tako da se definicijama umjesto *"[PLACEHOLDER]"* upišu prikladne definicije: SSID Wi-Fija, zaporka Wi-Fija i ime ESP32 na mreži.
+
 Aplikacija radi sljedeće:
 
 - inicijalizira NVS particiju za spremanje SSID-a i zaporke Wi-Fi mreže

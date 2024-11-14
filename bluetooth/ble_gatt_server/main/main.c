@@ -39,16 +39,16 @@
 #define LED_OFF                     0
 
 // GATT server profile event handler declaration
-void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
+static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
 // GAP peripheral UUID for advertising
-uint8_t adv_service_uuid128[16] = {
+static uint8_t adv_service_uuid128[16] = {
     0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA,
     0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
 };
 
 // GAP advertising data
-esp_ble_adv_data_t adv_data = {
+static esp_ble_adv_data_t adv_data = {
     .set_scan_rsp               = false,                                                            // Set this structure as an advertising data structure
     .include_name               = false,                                                            // Include name of the device in advertising data
     .include_txpower            = false,                                                            // Include transmitting power in advertising data
@@ -65,7 +65,7 @@ esp_ble_adv_data_t adv_data = {
 };
 
 // GAP scan response data
-esp_ble_adv_data_t scan_rsp_data = {
+static esp_ble_adv_data_t scan_rsp_data = {
     .set_scan_rsp               = true,                                                             // Set this structure as a response data structure
     .include_name               = true,                                                             // Include name of the device in response
     .include_txpower            = false,                                                            // Include transmitting power in response data
@@ -80,7 +80,7 @@ esp_ble_adv_data_t scan_rsp_data = {
 };
 
 // GAP advertising parameters
-esp_ble_adv_params_t adv_params = {
+static esp_ble_adv_params_t adv_params = {
     .adv_int_min                = 0x20,                                     // Minimum advertising interval in units of 0.625 ms
     .adv_int_max                = 0x40,                                     // Maximum advertising interval in units of 0.625 ms
     .adv_type                   = ADV_TYPE_IND,                             // Advertising type: connectable, scannable, undirected
@@ -92,34 +92,34 @@ esp_ble_adv_params_t adv_params = {
 };
 
 // Flag for when advertising configuration is done
-uint8_t adv_config_done = 0;
+static uint8_t adv_config_done = 0;
 
 // GATT server profile information
-uint16_t profile_gatts_if = ESP_GATT_IF_NONE;                           // GATT server profile interface, initialize it to none
-esp_gatts_cb_t profile_event_handler = gatts_profile_event_handler;     // GATT server profile callback, initialize it to the handler
+static uint16_t profile_gatts_if = ESP_GATT_IF_NONE;                            // GATT server profile interface, initialize it to none
+static esp_gatts_cb_t profile_event_handler = gatts_profile_event_handler;      // GATT server profile callback, initialize it to the handler
 
 // GATT server connection information
-uint16_t conn_id;                                                       // GATT server connection ID
+static uint16_t conn_id;                                                        // GATT server connection ID
 
 // GATT server service information
-uint16_t service_handle;                                                // GATT server service handle
-esp_gatt_srvc_id_t service_id;                                          // GATT server service ID
+static uint16_t service_handle;                                                 // GATT server service handle
+static esp_gatt_srvc_id_t service_id;                                           // GATT server service ID
 
 // GATT server LED ON/OFF characteristic information
-uint16_t char_led_handle;                                               // Characteristic handler
-esp_bt_uuid_t char_led_uuid;                                            // Characteristic UUID
-esp_gatt_perm_t char_led_perm;                                          // Characteristic permissions (read, write, ...)
-esp_gatt_char_prop_t char_led_property;                                 // Characteristic property
-uint8_t led_initial_value = 0;                                          // Characteristic initial value
+static uint16_t char_led_handle;                                                // Characteristic handler
+static esp_bt_uuid_t char_led_uuid;                                             // Characteristic UUID
+static esp_gatt_perm_t char_led_perm;                                           // Characteristic permissions (read, write, ...)
+static esp_gatt_char_prop_t char_led_property;                                  // Characteristic property
+static uint8_t led_initial_value = 0;                                           // Characteristic initial value
 
-esp_attr_value_t char_initial_value = {                                 // Characteristic initial value data structure
+static esp_attr_value_t char_initial_value = {                          // Characteristic initial value data structure
     .attr_max_len = sizeof(uint8_t),                                    // Maximum length of the value
     .attr_len     = sizeof(uint8_t),                                    // Initial attribute length
     .attr_value   = &led_initial_value,                                 // Pointer to the initial value
 };
 
 // GAP advertising data setup
-void gap_setup_adv_and_rsp_data() {
+static void gap_setup_adv_and_rsp_data() {
 
     // Configure advertising data
     esp_err_t ret = esp_ble_gap_config_adv_data(&adv_data);
@@ -134,7 +134,7 @@ void gap_setup_adv_and_rsp_data() {
 }
 
 // GATT server setup service
-void gatts_setup_service(esp_gatt_if_t gatts_if) {
+static void gatts_setup_service(esp_gatt_if_t gatts_if) {
 
     // Set service data
     service_id.is_primary = true;                                       // Service is primary
@@ -151,7 +151,7 @@ void gatts_setup_service(esp_gatt_if_t gatts_if) {
 }
 
 // GATT server setup LED characteristic
-void gatts_setup_led_characteristic() {
+static void gatts_setup_led_characteristic() {
 
     // Return value
     esp_err_t ret;
@@ -172,7 +172,7 @@ void gatts_setup_led_characteristic() {
 }
 
 // Read handler for LED characteristic appropriately called when ESP_GATTS_READ_EVT event
-void char_led_read_handler(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
+static void char_led_read_handler(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
 
     // Get current LED state
     uint8_t led_state = (uint8_t)gpio_get_level(LED_PIN);
@@ -198,7 +198,7 @@ void char_led_read_handler(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *par
 }
 
 // Write handler for LED characteristic appropriately called when ESP_GATTS_WRITE_EVT event
-void char_led_write_handler(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
+static void char_led_write_handler(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
 
     // Response to client
     esp_gatt_rsp_t rsp;
@@ -238,7 +238,7 @@ void char_led_write_handler(esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *pa
 }
 
 // GATT server profile event handler
-void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
+static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
 
     // Handle event
     switch (event) {
@@ -334,7 +334,7 @@ void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts
 }
 
 // GATT server event handler
-void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
+static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
 
     // If event is a register application id event
     if (event == ESP_GATTS_REG_EVT) {
@@ -360,7 +360,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 }
 
 // GAP event handler
-void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
+static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
 
     // Handle event
     switch (event) {
@@ -412,7 +412,7 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 }
 
 // Setup GATT server
-esp_err_t gatts_setup() {
+static esp_err_t gatts_setup() {
 
     // Register GATT server callback function
     esp_err_t ret = esp_ble_gatts_register_callback(gatts_event_handler);
@@ -437,7 +437,7 @@ esp_err_t gatts_setup() {
 }
 
 // Setup GAP
-esp_err_t gap_setup() {
+static esp_err_t gap_setup() {
 
     // Register GAP callback function
     esp_err_t ret = esp_ble_gap_register_callback(gap_event_handler);
@@ -451,7 +451,7 @@ esp_err_t gap_setup() {
 }
 
 // Setup Bluedroid Bluetooth host stack
-esp_err_t bluedroid_stack_setup() {
+static esp_err_t bluedroid_stack_setup() {
 
     // Initial error value
     esp_err_t ret = ESP_OK;
@@ -475,7 +475,7 @@ esp_err_t bluedroid_stack_setup() {
 }
 
 // Setup BLE controller
-esp_err_t ble_controller_setup() {
+static esp_err_t ble_controller_setup() {
 
     // Initial error value
     esp_err_t ret = ESP_OK;
@@ -503,7 +503,7 @@ esp_err_t ble_controller_setup() {
 }
 
 // Initialize default NVS partition
-esp_err_t nvs_init() {
+static esp_err_t nvs_init() {
 
     // Initialize default NVS partition
     esp_err_t ret = nvs_flash_init();
@@ -524,7 +524,7 @@ esp_err_t nvs_init() {
 }
 
 // Setup LED GPIO
-void gpio_led_setup() {
+static void gpio_led_setup() {
 
     // LED setup
     gpio_reset_pin(LED_PIN);                                    // Reset pin to default state

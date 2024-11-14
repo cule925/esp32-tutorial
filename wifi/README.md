@@ -137,7 +137,7 @@ Parametri ove funkcije su:
 
 - *event_handler*
 	- handler funkcija koja se poziva pri općenitom ili specifičnom događaju koji se registrira
-	- funkcija mora imati sljedeću deklaraciju: ```static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)```
+	- funkcija mora imati sljedeću deklaraciju: ```void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)```
 		- parametri su sljedeći:
 			- *arg* - proslijeđeni parametar koji se proslijedio pri registraciji
 			- *event_base* - identifikator općenitog događaja koji se dogodio
@@ -641,7 +641,7 @@ esp_err_t esp_wifi_deinit(void)
 
 Funkcija vraća *ESP_OK* ako je deinicijalizacija i dealokacija uspješno izvršena.
 
-#### Postavljanje načina rada Wi-Fia
+#### Postavljanje načina rada Wi-Fija
 ```
 esp_err_t esp_wifi_set_mode(wifi_mode_t mode)
 ```
@@ -649,13 +649,13 @@ esp_err_t esp_wifi_set_mode(wifi_mode_t mode)
 Parametar ove funkcije je:
 
 - *mode*
-	- definira način rada Wi-Fia, neki načini rada definirani su makroima:
+	- definira način rada Wi-Fija, neki načini rada definirani su makroima:
 		- *WIFI_MODE_STA* - način rada STATION
 		- *WIFI_MODE_AP* - način rada AP
 
 Funkcija vraća *ESP_OK* ako je postavljanje uspješno izvršena.
 
-#### Dohvat načina rada Wi-Fia
+#### Dohvat načina rada Wi-Fija
 ```
 esp_err_t esp_wifi_get_mode(wifi_mode_t *mode)
 ```
@@ -663,11 +663,11 @@ esp_err_t esp_wifi_get_mode(wifi_mode_t *mode)
 Parametar ove funkcije je:
 
 - *mode*
-	- pokazivač koji definira način rada Wi-Fia
+	- pokazivač koji definira način rada Wi-Fija
 
 Funkcija vraća *ESP_OK* ako je dohvaćanje uspješno izvršena.
 
-#### Postavljanje konfiguracije Wi-Fia
+#### Postavljanje konfiguracije Wi-Fija
 ```
 esp_err_t esp_wifi_set_config(wifi_interface_t interface, wifi_config_t *conf)
 ```
@@ -757,7 +757,7 @@ Bitni članovi strukture *wifi_ap_config_t* su:
 - *max_connection*
 	- varijabla tipa *uint8_t* koja definira maksimalni broj klijenata koji mogu biti spojeni na ESP32
 
-#### Dohvaćanje konfiguracije Wi-Fia
+#### Dohvaćanje konfiguracije Wi-Fija
 ```
 esp_err_t esp_wifi_get_config(wifi_interface_t interface, wifi_config_t *conf)
 ```
@@ -774,19 +774,19 @@ Parametri ove funkcije su:
 
 Funkcija vraća *ESP_OK* ako je dohvaćanje uspješno izvršena.
 
-#### Započinjanje rada Wi-Fia prema trenutnim konfiguracijama
+#### Započinjanje rada Wi-Fija prema trenutnim konfiguracijama
 ```
 esp_err_t esp_wifi_start(void)
 ```
 
-Funkcija vraća *ESP_OK* ako je rad Wi-Fia uspješno započet prema trenutnim konfiguracijama.
+Funkcija vraća *ESP_OK* ako je rad Wi-Fija uspješno započet prema trenutnim konfiguracijama.
 
-#### Zaustavljanje rada Wi-Fia
+#### Zaustavljanje rada Wi-Fija
 ```
 esp_err_t esp_wifi_stop(void)
 ```
 
-Funkcija vraća *ESP_OK* ako je rad Wi-Fia uspješno zaustavljen.
+Funkcija vraća *ESP_OK* ako je rad Wi-Fija uspješno zaustavljen.
 
 #### Spajanje na Wi-Fi mrežu definiranoj u konfiguraciji
 ```
@@ -814,6 +814,6 @@ Proces postavljanja ESP32 u STATION način rada je sljedeći:
 
 - inicijalizacija Wi-Fi upravljačkog programa, stvaranje konfiguracije mreže (ime mreže, zaporka, ...), postavljanje načina rada Wi-Fija (STATION)
 
-- započinjanje rada Wi-Fia
+- započinjanje rada Wi-Fija
 
 - spajanje na Wi-Fi mrežu
