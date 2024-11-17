@@ -37,7 +37,7 @@ cd ~/mosquitto
 
 Prvo je potrebno napraviti datoteku koja će sadržavati korisničko ime i sažetu zaporku koje su iste kao i definicijama u zaglavlju *config.h*. To se može napraviti naredbom:
 ```
-mosquitto_passwd -c mosquitto_password_file [Korisničko ime za prijavu na posrednik]
+mosquitto_passwd -c mosquitto_password_file [korisničko ime za prijavu na posrednik]
 ```
 
 Zatim je potrebno napraviti datoteku konfiguracije posrednika i u nju upisati (primjerice uz ```nano mosquitto.conf```):
@@ -56,12 +56,12 @@ mosquitto -c mosquitto.conf
 
 Pretplata na neku temu se može napraviti naredbom:
 ```
-mosquitto_sub -t [Tema] -u [Korisničko ime MQTT posrednika] -P [Zaporka MQTT posrednika]
+mosquitto_sub -t [tema] -u [korisničko ime MQTT posrednika] -P [zaporka MQTT posrednika]
 ```
 
 Objava podatka na temu se može napraviti naredbom:
 ```
-mosquitto_pub -t [Tema] -m [Podatak] -u [Korisničko ime MQTT posrednika] -P [Zaporka MQTT posrednika]
+mosquitto_pub -t [tema] -m [podatak] -u [korisničko ime MQTT posrednika] -P [zaporka MQTT posrednika]
 ```
 
 **Aplikacija koristi MQTT verziju 3.1.1 protokola**, verzija se mijenja uz pomoć *menuconfig*.

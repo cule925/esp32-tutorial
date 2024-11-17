@@ -8,7 +8,7 @@ Neki GPIO pinovi se koriste kao *strapping* pinovi gdje se prilikom *boota* ESP3
 
 Zaglavlje koje je potrebno uključiti za [rad s osnovnim GPIO operacijama (*eng. GPIO API*)](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/gpio.html#header-file) je ```driver/gpio.h```.
 
-Pinovi imaju makro definicije oblika ```GPIO_NUM_[Broj]``` čija je vrijednost jednaka stvarnom broju pina.
+Pinovi imaju makro definicije oblika ```GPIO_NUM_[broj]``` čija je vrijednost jednaka stvarnom broju pina.
 
 ### Osnovne GPIO funkcije
 
@@ -49,7 +49,7 @@ esp_err_t gpio_reset_pin(gpio_num_t gpio_num)
 Parametar funkcije je sljedeći:
 
 - *gpio_num*
-	- broj pina koji se postavlja u uobičajeno stanje, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina koji se postavlja u uobičajeno stanje, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 
 Funkcija vraća *ESP_OK*.
 
@@ -61,7 +61,7 @@ esp_err_t gpio_set_direction(gpio_num_t gpio_num, gpio_mode_t mode)
 Parametri funkcije su sljedeći:
 
 - *gpio_num*
-	- broj pina čiji se smjer postavlja, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina čiji se smjer postavlja, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 - *mode*
 	- smjer GPIO pina, neki načini rada:
 		- makro *GPIO_MODE_INPUT* - postavi pin kao ulaz
@@ -78,7 +78,7 @@ esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level)
 Parametri funkcije su sljedeći:
 
 - *gpio_num*
-	- broj pina čije se stanje postavlja, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina čije se stanje postavlja, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 - *level*
 	- 0 postavlja pin u logičko stanje 0 (niska naponska razina), 1 postavlja pin u logičko stanje 1 (visoka naponska razina)
 
@@ -92,7 +92,7 @@ int gpio_get_level(gpio_num_t gpio_num)
 Parametar funkcije je sljedeći:
 
 - *gpio_num*
-	- broj pina čije se stanje čita, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina čije se stanje čita, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 
 Funkcija vraća 0 ako je logičko stanje pina 0 (niska naponska razina) i 1 ako je logičko stanje pina 1 (visoka naponska razina). Ako je pin konfiguriran samo kao *GPIO_MODE_OUTPUT* povratna vrijednost ove funkcije (očitavanje stanja pina) će uvijek pokazivati 0 bez obzira ako je na izlazu pina 1.
 
@@ -104,7 +104,7 @@ esp_err_t gpio_pullup_en(gpio_num_t gpio_num)
 Parametar funkcije je sljedeći:
 
 - *gpio_num*
-	- broj pina čiji se *pull-up* otpornik omogućava, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina čiji se *pull-up* otpornik omogućava, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 
 Funkcija vraća *ESP_OK* ako je odabran valjani pin, u suprotnom vraća *ESP_ERR_INVALID_ARG*.
 
@@ -116,7 +116,7 @@ esp_err_t gpio_pullup_dis(gpio_num_t gpio_num)
 Parametar funkcije je sljedeći:
 
 - *gpio_num*
-	- broj pina čiji se *pull-up* otpornik onemogućava, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina čiji se *pull-up* otpornik onemogućava, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 
 Funkcija vraća *ESP_OK* ako je odabran valjani pin, u suprotnom vraća *ESP_ERR_INVALID_ARG*.
 
@@ -128,7 +128,7 @@ esp_err_t gpio_pulldown_en(gpio_num_t gpio_num)
 Parametar funkcije je sljedeći:
 
 - *gpio_num*
-	- broj pina čiji se *pull-down* otpornik omogućava, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina čiji se *pull-down* otpornik omogućava, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 
 Funkcija vraća *ESP_OK* ako je odabran valjani pin, u suprotnom vraća *ESP_ERR_INVALID_ARG*.
 
@@ -140,7 +140,7 @@ esp_err_t gpio_pulldown_dis(gpio_num_t gpio_num)
 Parametar funkcije je sljedeći:
 
 - *gpio_num*
-	- broj pina čiji se *pull-down* otpornik onemogućava, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina čiji se *pull-down* otpornik onemogućava, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 
 Funkcija vraća *ESP_OK* ako je odabran valjani pin, u suprotnom vraća *ESP_ERR_INVALID_ARG*.
 
@@ -158,7 +158,7 @@ gpio_set_intr_type(gpio_num_t gpio_num, gpio_int_type_t intr_type)
 Parametri funkcije su sljedeći:
 
 - *gpio_num*
-	- broj pina čije se karakteristike postavljaju, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina čije se karakteristike postavljaju, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 - *intr_type*
 	- postavlja karakteristike prekida navedenog pina, neke moguće karakteristike:
 		- makro *GPIO_INTR_DISABLE* - onemogući prekide
@@ -178,7 +178,7 @@ esp_err_t gpio_intr_enable(gpio_num_t gpio_num)
 Parametar funkcije je sljedeći:
 
 - *gpio_num*
-	- broj pina kojem će se prihvat prekida omogućiti, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina kojem će se prihvat prekida omogućiti, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 
 Funkcija vraća *ESP_OK* ako je odabran valjani pin, u suprotnom vraća *ESP_ERR_INVALID_ARG*.
 
@@ -190,7 +190,7 @@ esp_err_t gpio_intr_disable(gpio_num_t gpio_num)
 Parametar funkcije je sljedeći:
 
 - *gpio_num*
-	- broj pina kojem će se prihvat prekida onemogućiti, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti
+	- broj pina kojem će se prihvat prekida onemogućiti, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti
 
 Funkcija vraća *ESP_OK* ako je odabran valjani pin, u suprotnom vraća *ESP_ERR_INVALID_ARG*.
 
@@ -230,7 +230,7 @@ esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void
 Parametri funkcije su sljedeći:
 
 - *gpio_num*
-	- broj pina na kojeg se odnosi *handler* funkcija, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti*
+	- broj pina na kojeg se odnosi *handler* funkcija, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti*
 - *isr_handler*
 	- *handler* funkcija koja će se izvršiti kad se dogodi prekid na navedenom pinu
 - *args*
@@ -246,7 +246,7 @@ esp_err_t gpio_isr_handler_remove(gpio_num_t gpio_num)
 Parametri funkcije su sljedeći:
 
 - *gpio_num*
-	- broj pina na kojeg se odnosi *handler* funkcija, najbolje proslijediti makro definiciju *GPIO_NUM_[Broj]* radi čitljivosti*
+	- broj pina na kojeg se odnosi *handler* funkcija, najbolje proslijediti makro definiciju *GPIO_NUM_[broj]* radi čitljivosti*
 
 Funkcija vraća *ESP_OK* ako je odjava funkcije uspjela.
 

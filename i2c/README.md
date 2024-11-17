@@ -279,9 +279,9 @@ Parametri ove funkcije su:
 			- varijabla tipa *i2c_port_num_t* koja označava koju sabirnicu odabrati
 			- vrijednost može biti *I2C_NUM_0* (prvi sklop) ili *I2C_NUM_1* (drugi sklop)
 		- *sda_io_num*
-			- varijabla tipa *gpio_num_t*, GPIO broj I2C SDA sabirnice, oblika ```GPIO_NUM_[Broj]```
+			- varijabla tipa *gpio_num_t*, GPIO broj I2C SDA sabirnice, oblika ```GPIO_NUM_[broj]```
 		- *scl_io_num*
-			- varijabla tipa *gpio_num_t*, GPIO broj I2C SCL sabirnice, oblika ```GPIO_NUM_[Broj]```
+			- varijabla tipa *gpio_num_t*, GPIO broj I2C SCL sabirnice, oblika ```GPIO_NUM_[broj]```
 		- *clk_source*
 			- varijabla tipa *i2c_clock_source_t*, izvor takta
 			- vrijednost može biti *I2C_CLK_SRC_APB* (APB sabirnica) ili *I2C_CLK_SRC_DEFAULT* (opet odabire APB sabirnicu)
@@ -471,9 +471,9 @@ Parametri ove funkcije su:
 			- varijabla tipa *i2c_port_num_t* koja označava na koju sabirnicu se spojiti kao *slave*
 			- vrijednost može biti *I2C_NUM_0* (prvi sklop) ili *I2C_NUM_1* (drugi sklop)
 		- *sda_io_num*
-			- varijabla tipa *gpio_num_t*, GPIO broj I2C SDA sabirnice, oblika ```GPIO_NUM_[Broj]```
+			- varijabla tipa *gpio_num_t*, GPIO broj I2C SDA sabirnice, oblika ```GPIO_NUM_[broj]```
 		- *scl_io_num*
-			- varijabla tipa *gpio_num_t*, GPIO broj I2C SCL sabirnice, oblika ```GPIO_NUM_[Broj]```
+			- varijabla tipa *gpio_num_t*, GPIO broj I2C SCL sabirnice, oblika ```GPIO_NUM_[broj]```
 		- *clk_source*
 			- varijabla tipa *i2c_clock_source_t*, izvor takta
 			- vrijednost može biti *I2C_CLK_SRC_APB* (APB sabirnica) ili *I2C_CLK_SRC_DEFAULT* (opet odabire APB sabirnicu)
