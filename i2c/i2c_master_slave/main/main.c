@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include "driver/gpio.h"                                                        // GPIO operations
 #include "freertos/FreeRTOS.h"                                                  // FreeRTOS kernel
 #include "freertos/task.h"                                                      // FreeRTOS task functions
 #include "freertos/semphr.h"                                                    // FreeRTOS semaphore and mutex operations
@@ -64,8 +63,8 @@ i2c_device_config_t master_config = {
 // Slave device configuration
 i2c_slave_config_t slave_config = {
     .i2c_port = I2C_BUS_1,                                      // Assign to bus 1
-    .sda_io_num = GPIO_NUM_19,                                  // SDA pin
-    .scl_io_num = GPIO_NUM_18,                                  // SCL pin
+    .sda_io_num = I2C_SLAVE_SDA_IO,                             // SDA pin
+    .scl_io_num = I2C_SLAVE_SCL_IO,                             // SCL pin
     .clk_source = I2C_CLK_SRC_DEFAULT,                          // Default clock source (APB)
     .send_buf_depth = I2C_SLAVE_RINGBUFFER_SIZE,                // Set uint8_t ring buffer size, for best performanse it should be a power of 2
     .slave_addr = I2C_SLAVE_ADDRESS,                            // Slave address
@@ -85,7 +84,7 @@ SemaphoreHandle_t xSemaphorePrint;
 i2c_master_bus_handle_t bus_handle;
 i2c_master_dev_handle_t master_handle;
 
-// I2C slave handles
+// I2C slave handle
 i2c_slave_dev_handle_t slave_handle;
 
 // I2C transmit task information

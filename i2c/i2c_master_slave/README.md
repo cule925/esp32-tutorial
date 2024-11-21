@@ -3,8 +3,10 @@
 Aplikacija je napravljena za ESP32-DevKitM-1 jednojezgrenu pločicu.
 
 Potrebno je napraviti sljedeće:
-    - GPIO 18 i GPIO 21 potrebno je spojiti pa je na taj spoj potrebno nadodati otpor od 2 kOhma koji vodi prema 3.3 V izvoru napajanja
-    - GPIO 19 i GPIO 22 potrebno je spojiti pa je na taj spoj potrebno nadodati otpor od 2 kOhma koji vodi prema 3.3 V izvoru napajanja
+
+- GPIO 18 i GPIO 21 potrebno je spojiti pa je na taj spoj potrebno nadodati otpor od 2 kOhma koji vodi prema 3.3 V izvoru napajanja
+- GPIO 19 i GPIO 22 potrebno je spojiti pa je na taj spoj potrebno nadodati otpor od 2 kOhma koji vodi prema 3.3 V izvoru napajanja
+
 ```
         +-----------------+
         | ESP32-DevKitM-1 |
