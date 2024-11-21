@@ -21,7 +21,7 @@ Potrebno je napraviti sljedeće:
         |         GPIO 22 +---------------------+                |                |                |
         |                 |                     |                |                |                |
         |             GND +----+               _|_              _|_              -+-              -+-
-        |                 |    |               \ / LED 1        \ / LED 2       | O | BUTTON 1   | o | BUTTON 2
+        |                 |    |               \ / LED 1        \ / LED 2       | O | BUTTON 1   | O | BUTTON 2
         +-----------------+    |                |                |               -+-              -+-
                                |                |                |                |                |
                                |               +++              +++               |                |
