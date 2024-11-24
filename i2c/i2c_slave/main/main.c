@@ -4,7 +4,6 @@
 #include "freertos/FreeRTOS.h"                                                  // FreeRTOS kernel
 #include "freertos/task.h"                                                      // FreeRTOS task functions
 #include "freertos/semphr.h"                                                    // FreeRTOS semaphore and mutex operations
-#include "driver/i2c_master.h"                                                  // I2C master functions
 #include "driver/i2c_slave.h"                                                   // I2C slave functions
 #include "esp_log.h"                                                            // Logging operations
 
@@ -23,8 +22,8 @@
 #define I2C_SLAVE_ADDRESS               0x22
 #define I2C_BUS_1                       I2C_NUM_1                               // Slave bus
 
-#define I2C_SLAVE_SDA_IO                GPIO_NUM_19                             // GPIO 22 for SDA
-#define I2C_SLAVE_SCL_IO                GPIO_NUM_18                             // GPIO 21 for SCL
+#define I2C_SLAVE_SDA_IO                GPIO_NUM_19                             // GPIO 19 for SDA
+#define I2C_SLAVE_SCL_IO                GPIO_NUM_18                             // GPIO 18 for SCL
 
 #define I2C_RX_SIZE                     2                                       // Receive buffer size
 #define I2C_SLAVE_RINGBUFFER_SIZE       32                                      // Must be a power of 2
@@ -112,7 +111,7 @@ void vTaskISRSetLED(void* argument) {
 
 }
 
-// I2C initialize
+// I2C initialize slave
 void i2c_slave_init() {
 
     // Initialize slave

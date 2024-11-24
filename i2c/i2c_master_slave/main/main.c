@@ -19,8 +19,8 @@
 
 #define I2C_MASTER_SDA_IO               GPIO_NUM_22                             // GPIO 22 for SDA
 #define I2C_MASTER_SCL_IO               GPIO_NUM_21                             // GPIO 21 for SCL
-#define I2C_SLAVE_SDA_IO                GPIO_NUM_19                             // GPIO 22 for SDA
-#define I2C_SLAVE_SCL_IO                GPIO_NUM_18                             // GPIO 21 for SCL
+#define I2C_SLAVE_SDA_IO                GPIO_NUM_19                             // GPIO 19 for SDA
+#define I2C_SLAVE_SCL_IO                GPIO_NUM_18                             // GPIO 18 for SCL
 
 #define I2C_MASTER_SCL_FREQ             100000                                  // SCL frequency from master
 
@@ -175,7 +175,7 @@ void i2c_bus_and_master_init() {
 
 }
 
-// I2C initialize
+// I2C initialize slave
 void i2c_slave_init() {
 
     // Initialize slave

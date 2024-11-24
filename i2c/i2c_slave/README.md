@@ -39,6 +39,6 @@ Aplikacija radi sljedeće:
 - aplikacija inicijalizira jedan I2C sklop i spaja se na njega kao *slave*, u ovom slučaju s adresom 0x22
 - aplikacija čeka da neki *master* upiše dva bajta gdje prvi bajt označava svjetleću diodu (prvu ili drugu), a drugi bajt što raditi s njom (paliti ili gasiti), ovo se događa beskonačno dugo
 
-Primjer *mastera* može biti [ovaj primjer s Raspberry Pi mikroračunalom](https://github.com/cule925/raspberrypi-tutorial/tree/master/gpio/direct-gpio-control/i2c_master), bitno je da *master* šalje ovom *slaveu* točno dva bajta, jedan za odabir svjetleće diode (0 ili 1), a drugi za postavljanje stanja odabrane diode (0 ili 1).
+Primjer *mastera* može biti [ovaj primjer s drugim ESP32 mikroupravljačem](../i2c_master/) ili [ovaj primjer s Raspberry Pi mikroračunalom](https://github.com/cule925/raspberrypi-tutorial/tree/master/gpio/direct-gpio-control/i2c_master), bitno je da *master* šalje ovom *slaveu* točno dva bajta, jedan za odabir svjetleće diode (0 ili 1), a drugi za postavljanje stanja odabrane diode (0 ili 1).
 
-**Oprez, naponi razina kojom mikroupravljači i mikroračunala komuniciraju moraju biti maksimalno 3.3 V.**
+**Oprez, naponi signala kojom mikroupravljači i mikroračunala komuniciraju moraju biti od 0 V do 3.3 V.**
