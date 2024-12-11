@@ -258,7 +258,7 @@ U slučaju rada dva ili više *mastera*, svaki *master* provjerava je li SDA lin
 
 ### ESP32 i I2C
 
-ESP32 može raditi u načinu *standard mode (100 kb/s)* i *fast mode (400 kb/s)*. ESP32 može također imati ulogu i *mastera* i *slavea*. Za primjere se koristila pločica [*ESP32-DevKitM-1*](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitm-1/user_guide.html#getting-started) koja na sebi ima modul [ESP32-MINI-1](https://www.puntoflotante.net/Wifi-modes-of-operation.pdf). ESP32 sadrži dva zasebna I2C sklopa odnosno dvije zasebne I2C sabirnice.
+ESP32 može raditi u načinu *standard mode (100 kb/s)* i *fast mode (400 kb/s)*. ESP32 može također imati ulogu i *mastera* i *slavea*. Za primjere se koristila pločica [*ESP32-DevKitM-1*](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitm-1/user_guide.html#getting-started) koja na sebi ima modul [ESP32-MINI-1](https://www.espressif.com/sites/default/files/documentation/esp32-mini-1_datasheet_en.pdf). ESP32 sadrži dva zasebna I2C sklopa odnosno dvije zasebne I2C sabirnice.
 
 Primjer gdje ESP32 radi istovremena i kao *master* i kao *slave* koristeći oba I2C sklopa nalazi se [ovdje](i2c_master_slave).
 
