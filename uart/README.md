@@ -44,7 +44,7 @@ Ovakav način provjeravanja grešaka funkcionira samo ako se dogodila promjena n
 
 ### ESP32 i UART
 
-ESP32 sadrži tri UART sklopa koji se mogu multipleksirati na bilo koji GPIO pin multipleksiranjem. Međutim, ako se želi koristiti UART s brzinom prijenosa veću od 40 MHz-a, najbolje je koristiti pinove koji su direktno spojeni na pojedine UART sklopove. Za primjere se koristila pločica [*ESP32-DevKitM-1*](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitm-1/user_guide.html#getting-started) koja na sebi ima modul [ESP32-MINI-1](https://www.espressif.com/sites/default/files/documentation/esp32-mini-1_datasheet_en.pdf).
+ESP32 sadrži tri UART sklopa čije se linije mogu usmjeriti na bilo koji GPIO pin multipleksiranjem ili se mogu koristiti zadani GPIO pinovi (IO_MUX). Međutim, ako se želi koristiti UART s brzinom prijenosa veću od 40 MHz-a, najbolje je koristiti pinove koji su direktno spojeni na pojedine UART sklopove. Za primjere se koristila pločica [*ESP32-DevKitM-1*](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitm-1/user_guide.html#getting-started) koja na sebi ima modul [ESP32-MINI-1](https://www.espressif.com/sites/default/files/documentation/esp32-mini-1_datasheet_en.pdf).
 
 Primjer gdje ESP32 šalje i prima podatke uz pomoć UART protokola nalazi se [ovdje](uart_tx_rx).
 
@@ -131,7 +131,7 @@ Parametri ove funkcije su:
 - *uart_queue*
 	- handle na FreeRTOS red poruka koji služi za spremanje UART događaja
 - *intr_alloc_flags*
-	- svojstva UART prekida oblika *ESP_INTR_FLAG_\**, više informacija se može naći [ovdje](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/intr_alloc.html#id2)
+	- svojstva UART prekida (ISR-a) oblika *ESP_INTR_FLAG_\**, više informacija se može naći [ovdje](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/intr_alloc.html#id2)
 	- enumerator ne smije imati svojstvo *ESP_INTR_FLAG_IRAM* jer se ISR handler upravljačkog programa ne nalazi u IRAM-u
 
 Funkcija vraća *ESP_OK* ako je uspješno inicijaliziran UART upravljački program.
@@ -312,7 +312,7 @@ Parametri ove funkcije su:
 - *cts_io_num*
 	- ciljani CTS GPIO pin, -1 ako se ne koristi
 
-Funkcija vraća *ESP_OK* ako su uspješno postavljeni GPIO pinovi ciljanog UART sklopa. Ako se proslijede već hardverski zadani GPIO pinovi, koristit će se direktna konekcija (IO_MUX) umjesto GPIO multipleksora.
+Funkcija vraća *ESP_OK* ako su uspješno postavljeni GPIO pinovi ciljanog UART sklopa. Ako se proslijede već hardverski zadani GPIO pinovi, koristit će se direktna konekcija (IO_MUX) umjesto GPIO matrice.
 
 #### Postavi način rada sklopa
 

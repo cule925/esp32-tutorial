@@ -2,6 +2,8 @@
 
 [GPIO (*eng. General Purpose Input Output*)](https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/api-reference/peripherals/gpio.html) su pinovi koji omogućuju fizičko povezivanje mikroupravljača i mikroračunala s drugim elektroničkim komponentama i uređajima. U slučaju ESP32 mikroupravljača, ESP32 nudi 34 GPIO pina gdje se mogu koristiti kao jednostavan ulazno-izlazni pin ili se alternativno mogu spojiti kao ulazno-izlazni pin nekog internog sklopa (primjerice UART, SPI, I2C ...).
 
+Većina alternativnih funkcija se može provesti na bilo koji pin GPIO matricom, ali se za najbolje performanse preporučuje koristiti direktno povezani zadani GPIO (IO_MUX).
+
 Neki GPIO pinovi se koriste kao *strapping* pinovi gdje se prilikom *boota* ESP32-a očitavaju naponske razine i time namješta konfiguracija. Omogućuju fleksibilnost u radu jer se postavke aplikacije mogu mijenjati bez reprogramiranja čipa.
 
 ## Uobičajeni GPIO

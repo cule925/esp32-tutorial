@@ -25,7 +25,7 @@
 #define I2C_MASTER_SCL_FREQ             100000                                  // SCL frequency from master
 
 #define I2C_TX_SIZE                     40                                      // Transmit message size
-#define I2C_DELAY_TRANSMIT_MS           1000                                    // Delay between each transmit of character
+#define I2C_DELAY_TRANSMIT_MS           1000                                    // Delay between each transmition
 
 #define I2C_RX_SIZE                     40                                      // Receive message size
 #define I2C_SLAVE_RINGBUFFER_SIZE       256                                     // Must be a power of 2

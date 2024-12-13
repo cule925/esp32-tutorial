@@ -4,6 +4,16 @@
 
 ## Način rada I2C sabirnice
 
+Uređaji na koji koriste I2C mogu imati jednu od sljedećih uloga:
+
+- *master* (u novije vrijeme zvan *controller*)
+	- inicira komunikaciju pisanja ili čitanja
+- *slave* (u novije vrijeme zvan *peripheral*)
+	- sluša mastera i odgovara mu na zahtjeve pisanja i čitanja
+	- adresabilan, ima jedinstvenu 7 bitnu ili 10 bitnu adresu na sabirnici
+
+Svi *slave* uređaji koji su spojeni na istu sabirnicu moraju imati 7 bitnu ili 10 bitnu **jedinstvenu adresu**. Također, moguće je spojiti više *mastera* na sabirnicu.
+
 I2C koristi dvije sabirnice kako bi ostvarila komunikaciju između uređaja:
 
 - SDA (*eng. Serial Data*)
@@ -12,18 +22,6 @@ I2C koristi dvije sabirnice kako bi ostvarila komunikaciju između uređaja:
 	- sabirnica takta
 
 Uređaji koji se spajaju na sabirnice *open drain* konekcijom uz pomoć *pull-up* otpornika. Tipične naponske razine rada su 5 volti (logički *1* je 5 V, logički *0* je 0 V) ili 3.3 (logički *1* je 3.3 V, logički *0* je 0 V) volti, ali je za implementaciju dopušteno koristiti vlastite naponske razine.
-
-### Uloge uređaja
-
-Uređaji na koji koriste I2C mogu imati jednu od sljedećih uloga:
-
-- *master*
-	- inicira komunikaciju pisanja ili čitanja
-- *slave*
-	- sluša mastera i odgovara mu na zahtjeve pisanja i čitanja
-	- adresabilan, ima jedinstvenu 7 bitnu ili 10 bitnu adresu na sabirnici
-
-Svi *slave* uređaji koji su spojeni na istu sabirnicu moraju imati 7 bitnu ili 10 bitnu **jedinstvenu adresu**. Također, moguće je spojiti više *mastera* na sabirnicu.
 
 ### Brzine rada I2C sabirnice
 
@@ -123,6 +121,7 @@ Tijek prijenosa paketa je sljedeći:
 Kao potvrdu prijenosa paketa podataka koriste se signali *ACK (eng. Acknowledge)* i *NACK (eng. Not Acknowledge)*. Kad *slave* odgovara *masteru* šalje *ACK* kao znak da je primio paket, a *NACK* da ga nije primio. Kad *master* odgovara *slaveu* šalje *ACK* kao znak da je primio sve pakete osim zadnjeg, na zadnji odgovara s *NACK*. Kad *master* šalje paket *NACK* to znači da terminira vezu, u bilo kojem kontekstu.
 
 Primjer kad *master* čita jedan podatak iz *slavea*:
+
 ```
               START                                                                                      STOP
             CONDITION                                                                                 CONDITION
@@ -146,6 +145,7 @@ Primjer kad *master* čita jedan podatak iz *slavea*:
 ```
 
 Primjer kad *master* piše jedan podatak u *slave*:
+
 ```
               START                                                                                      STOP
             CONDITION                                                                                 CONDITION
@@ -169,6 +169,7 @@ Primjer kad *master* piše jedan podatak u *slave*:
 ```
 
 Neki *slave* uređaji imaju mogućnost rastezanje takta (*eng. clock stretching*) što znači da mogu držati takt spuštenim ako još nisu spremni prihvatit ili poslat paket. Primjer rastezanja takta kod čitanja sa *slavea*:
+
 ```
               START                                                                                          STOP
             CONDITION                                                                                     CONDITION
@@ -195,6 +196,7 @@ Neki *slave* uređaji imaju mogućnost rastezanje takta (*eng. clock stretching*
 ```
 
 Primjer kad *master* piše tri podatka u *slave* ako to *slave* omogućuje:
+
 ```
               START                                                                                                                                            STOP
             CONDITION                                                                                                                                       CONDITION
@@ -218,6 +220,7 @@ Primjer kad *master* piše tri podatka u *slave* ako to *slave* omogućuje:
 ```
 
 Primjer kad *master* čita tri podatka iz *slavea* ako to *slave* omogućuje:
+
 ```
               START                                                                                                                                            STOP
             CONDITION                                                                                                                                       CONDITION
@@ -258,7 +261,11 @@ U slučaju rada dva ili više *mastera*, svaki *master* provjerava je li SDA lin
 
 ### ESP32 i I2C
 
-ESP32 može raditi u načinu *standard mode (100 kb/s)* i *fast mode (400 kb/s)*. ESP32 može također imati ulogu i *mastera* i *slavea*. Za primjere se koristila pločica [*ESP32-DevKitM-1*](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitm-1/user_guide.html#getting-started) koja na sebi ima modul [ESP32-MINI-1](https://www.espressif.com/sites/default/files/documentation/esp32-mini-1_datasheet_en.pdf). ESP32 sadrži dva zasebna I2C sklopa odnosno dvije zasebne I2C sabirnice.
+ESP32 [I2C sklopovi](https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf#i2c) mogu raditi u načinu *standard mode (100 kb/s)* i *fast mode (400 kb/s)*. ESP32 I2C sklopovi mogu također imati ulogu i *mastera* i *slavea*. Za primjere se koristila pločica [*ESP32-DevKitM-1*](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitm-1/user_guide.html#getting-started) koja na sebi ima modul [ESP32-MINI-1](https://www.espressif.com/sites/default/files/documentation/esp32-mini-1_datasheet_en.pdf). ESP32 sadrži dva zasebna I2C sklopa odnosno dvije zasebne I2C sabirnice.
+
+Primjer gdje ESP32 radi kao *master* koristeći jedan I2C sklop nalazi se [ovdje](i2c_master).
+
+Primjer gdje ESP32 radi kao *slave* koristeći jedan I2C sklop nalazi se [ovdje](i2c_slave).
 
 Primjer gdje ESP32 radi istovremena i kao *master* i kao *slave* koristeći oba I2C sklopa nalazi se [ovdje](i2c_master_slave).
 
